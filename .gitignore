@@ -1,0 +1,4 @@
+plantvillage dataset/
+__pycache__/
+*.h5
+*.pkl
