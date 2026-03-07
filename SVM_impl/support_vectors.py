@@ -1,10 +1,23 @@
 import numpy as np
 from sklearn.svm import LinearSVC
 from sklearn.metrics import classification_report, confusion_matrix, f1_score, accuracy_score
+from sklearn.decomposition import PCA
 import joblib
 import os
 import datetime
 import pandas as pd
+import gc
+
+# ========== REPORT DIR ==========
+report_dir = "reports"
+if not os.path.exists(report_dir):
+    os.makedirs(report_dir)
+
+log_file = os.path.join(report_dir, "training_history.csv")
+c_list = [0.001, 0.01, 0.1, 1.0, 10.0, 100.0]
+
+# ========== DIMENSIONALITY REDUCTION ==========
+pca = PCA(n_components=0.95)
 
 # ========== LOAD DATA ==========
 print("Loading train/test datasets...")
@@ -19,73 +32,64 @@ print("Test shape:", X_test.shape)
 
 # ========== TRAINING MODEL ==========
 print("Training SVM...")
+X_train_pca = pca.fit_transform(X_train)
+X_test_pca = pca.transform(X_test)
+print("Train shape after PCA:", X_train_pca.shape)
+print("Test shape after PCA:", X_test_pca.shape)
 
-C_value = 10.0   # safe baseline value
+for c_val in c_list:
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"Running SVM with C = {c_val}")
 
-model = LinearSVC(C=C_value, max_iter=5000, verbose=1, dual=False)
-model.fit(X_train, y_train)
+    try:
+        model = LinearSVC(C=c_val, max_iter=1000, dual=False, verbose=1, tol=1e-2)
+        model.fit(X_train_pca, y_train)
+        y_pred = model.predict(X_test_pca)
+        train_acc = model.score(X_train_pca, y_train)
+        test_acc = accuracy_score(y_test, y_pred)
+        f1 = f1_score(y_test, y_pred)
 
-print("Training completed.")
+        print(f"Done! Train Acc: {train_acc:.4f} | Test Acc: {test_acc:.4f} | F1: {f1:.4f}")
 
-# ========== PREDICTION ==========
-print("Running prediction...")
+        log_entry = pd.DataFrame([{
+            "Time": timestamp,
+            "C":    c_val,
+            "Train accuracy": train_acc,
+            "Test accuracy": test_acc,
+            "F1 Score": f1,
+            "Train Size": X_train_pca.shape[0],
+            "Features": X_train_pca.shape[1]
+        }])
 
-y_pred = model.predict(X_test)
+        if not os.path.isfile(log_file):
+            log_entry.to_csv(log_file, index=False)
+        else:
+            log_entry.to_csv(log_file, mode='a', header=False, index=False)
 
-# ========== EVALUATION ==========
-print("\nF1 Score:")
-f1 = f1_score(y_test, y_pred)
-print(f1)
+        # Report to txt
+        report_name = os.path.join(report_dir, f"report_C{c_val}_{datetime.datetime.now().strftime('%H%M%S')}.txt")
+        with open(report_name, "w", encoding="utf-8") as f:
+            f.write(f"EXPERIMENT REPORT - {timestamp}\n")
+            f.write(f"Model: LinearSVC (C={c_val})\n")
+            f.write("="*40 + "\n")
+            f.write("CLASSIFICATION REPORT:\n")
+            f.write(f"Train Accuracy: {train_acc}\n")
+            f.write(f"Test Accuracy: {test_acc}\n")
+            f.write("-" * 30 + "\n")
+            f.write(classification_report(y_test, y_pred))
+            f.write("\nCONFUSION MATRIX:\n")
+            f.write(np.array2string(confusion_matrix(y_test, y_pred)))
 
-acc = accuracy_score(y_test, y_pred)
-print(acc)
+        # ========== SAVE MODEL ==========
+        joblib.dump(model, os.path.join(report_dir, f"model_C{c_val}.pkl"))
 
-report = classification_report(y_test, y_pred)
-print("\nClassification Report:")
-print(report)
+        del model
+        del y_pred
+        gc.collect()
 
-print("\nConfusion Matrix:")
-cm = confusion_matrix(y_test, y_pred)
-print(cm)
+    except Exception as e:
+        print(f"[ERROR] Error at C={c_val}: {e}")
+        continue
 
-# ========== SAVE MODEL ==========
-joblib.dump(model, "svm_baseline.pkl")
-
-print("\nModel saved: svm_baseline.pkl")
-
-# ========== LOGGING ==========
-log_file = "training_history.csv"
-timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-log_entry = pd.DataFrame([{
-    "Time": timestamp,
-    "C":    C_value,
-    "Accuracy": acc,
-    "F1 Score": f1,
-    "Train Size": X_train.shape[0],
-    "Features": X_train.shape[1]
-}])
-
-if not os.path.isfile(log_file):
-    log_entry.to_csv(log_file, index=False)
-else:
-    log_entry.to_csv(log_file, mode='a', header=False, index=False)
-
-# Report to txt
-report_name = f"report_C{C_value}_{datetime.datetime.now().strftime('%H%M%S')}.txt"
-with open(report_name, "w", encoding="utf-8") as f:
-    f.write(f"EXPERIMENT REPORT - {timestamp}\n")
-    f.write(f"Model: LinearSVC (C={C_value})\n")
-    f.write("="*40 + "\n")
-    f.write("CLASSIFICATION REPORT:\n")
-    f.write(report)
-    f.write("\nCONFUSION MATRIX:\n")
-    f.write(np.array2string(cm))
-
-print(f"\n[OK] Result is saved into '{log_file}' and '{report_name}'")
-
-# ========== SAVE MODEL ==========
-model_filename = "svm_baseline.pkl"
-joblib.dump(model, model_filename)
-print(f"Model saved: {model_filename}")
+print(f"\n[DONE] All experiments are saved into {report_dir}")
 
