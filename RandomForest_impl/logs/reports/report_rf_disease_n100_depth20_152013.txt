@@ -1,0 +1,98 @@
+EXPERIMENT REPORT - 2026-03-08 15:20:12
+Task  : disease
+Model : RandomForestClassifier (n_estimators=100, max_depth=20, criterion=gini)
+========================================
+CLASSIFICATION REPORT:
+                                      precision    recall  f1-score   support
+
+                          Apple_scab       0.00      0.00      0.00       189
+                      Bacterial_spot       0.81      0.84      0.82      1626
+                           Black_rot       0.85      0.56      0.67       540
+                    Cedar_apple_rust       1.00      0.01      0.02        82
+ Cercospora_leaf_spot Gray_leaf_spot       0.94      0.38      0.54       154
+                        Common_rust_       0.99      1.00      0.99       358
+                        Early_blight       0.81      0.66      0.73       600
+                Esca_(Black_Measles)       0.89      0.85      0.87       415
+     Haunglongbing_(Citrus_greening)       0.95      0.98      0.96      1652
+                         Late_blight       0.86      0.72      0.78       873
+                           Leaf_Mold       0.99      0.51      0.68       286
+  Leaf_blight_(Isariopsis_Leaf_Spot)       0.92      0.95      0.94       323
+                         Leaf_scorch       0.93      0.83      0.87       333
+                Northern_Leaf_Blight       0.75      0.87      0.80       296
+                      Powdery_mildew       0.87      0.87      0.87       866
+                  Septoria_leaf_spot       0.93      0.44      0.60       531
+Spider_mites Two-spotted_spider_mite       0.93      0.75      0.83       503
+                         Target_Spot       0.92      0.59      0.72       421
+       Tomato_Yellow_Leaf_Curl_Virus       0.89      0.97      0.93      1607
+                 Tomato_mosaic_virus       1.00      0.71      0.83       112
+                             healthy       0.78      0.99      0.87      4525
+
+                            accuracy                           0.85     16292
+                           macro avg       0.86      0.69      0.73     16292
+                        weighted avg       0.85      0.85      0.83     16292
+
+CONFUSION MATRIX:
+[[   0   25    0    0    0    0    1    0    5   11    0    0    0    0
+    16    1    0    0    2    0  128]
+ [   0 1361    3    0    0    0    8    2   34   15    0    2    1    0
+     2    0    0    0   62    0  136]
+ [   0   21  300    0    0    0    0   24    7    3    0    9    0    0
+     1    0    0    1    4    0  170]
+ [   0   28    0    1    0    0    0    0    2    5    0    2    0    0
+    37    0    0    0    3    0    4]
+ [   0    1    0    0   59    0    0    0    1    0    0    2    1   81
+     4    0    0    0    0    0    5]
+ [   0    0    0    0    0  357    0    0    0    1    0    0    0    0
+     0    0    0    0    0    0    0]
+ [   0   56    1    0    0    0  395    7    2   30    0    4    1    0
+     1    2    1    7   21    0   72]
+ [   0    9   34    0    0    0    0  351    0    2    0    3    0    0
+     1    0    0    0    4    0   11]
+ [   0    3    0    0    0    0    0    0 1625    0    0    0    0    0
+     0    0    0    0   16    0    8]
+ [   0   53    1    0    0    2   38    1    7  625    0    1    4    3
+    17    0    2    1   21    0   97]
+ [   0   15    0    0    0    0    4    0    0    6  147    0    1    0
+     0   10    1    0   11    0   91]
+ [   0    3    7    0    0    0    1    2    0    1    0  308    0    0
+     1    0    0    0    0    0    0]
+ [   0    3    0    0    0    1    3    8    1    7    0    2  275    2
+     7    1    0    0    0    0   23]
+ [   0    3    0    0    4    0    0    0    1    2    0    0    2  257
+    14    0    0    0    0    0   13]
+ [   0   16    1    0    0    0    1    0   13    3    0    0    1    0
+   754    0    0    0    1    0   76]
+ [   0   33    3    0    0    0   33    1   10   12    0    0   10    0
+     8  235    0    3    5    0  178]
+ [   0    3    0    0    0    0    1    0    4    1    0    0    0    0
+     0    0  377    7   29    0   81]
+ [   0   18    0    0    0    0    0    0    1    3    0    0    0    0
+     2    1   15  248    5    0  128]
+ [   0   19    1    0    0    0    0    0    5    0    0    0    0    0
+     0    0    9    0 1554    0   19]
+ [   0    1    0    0    0    0    0    0    0    0    1    0    0    0
+     0    4    0    1    2   79   24]
+ [   0    8    1    0    0    1    1    0    0    3    0    0    0    0
+     0    0    2    2    7    0 4500]]
+
+FEATURE IMPORTANCES (Top 20):
+   1. f6       importance=0.019330
+   2. f5       importance=0.018152
+   3. f3       importance=0.014881
+   4. f4       importance=0.014663
+   5. f7       importance=0.011366
+   6. f89      importance=0.010883
+   7. f2       importance=0.010793
+   8. f90      importance=0.010792
+   9. f88      importance=0.010037
+  10. f91      importance=0.009981
+  11. f93      importance=0.009967
+  12. f1       importance=0.008652
+  13. f64      importance=0.008642
+  14. f92      importance=0.008193
+  15. f94      importance=0.008010
+  16. f95      importance=0.007562
+  17. f56      importance=0.007518
+  18. f54      importance=0.007044
+  19. f87      importance=0.006886
+  20. f32      importance=0.006727
