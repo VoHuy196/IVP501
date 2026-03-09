@@ -90,15 +90,15 @@ def run_knn(task_name, X_train, y_train, X_test, y_test, target_names, k_values,
 print("Loading actual Train/Test data from RandomForest_impl/data/ ...")
 
 # 1. LOAD REAL DATA
-X_train_plant = np.load(os.path.join(DATA_DIR, "X_train_plant.npy"))
-X_test_plant = np.load(os.path.join(DATA_DIR, "X_test_plant.npy"))
-y_train_plant = np.load(os.path.join(DATA_DIR, "y_train_plant.npy"))
-y_test_plant = np.load(os.path.join(DATA_DIR, "y_test_plant.npy"))
+X_train_plant = np.load(os.path.join(DATA_DIR, "X_train_plant.npy"),allow_pickle=True)
+X_test_plant = np.load(os.path.join(DATA_DIR, "X_test_plant.npy"),allow_pickle=True)
+y_train_plant = np.load(os.path.join(DATA_DIR, "y_train_plant.npy"),allow_pickle=True)
+y_test_plant = np.load(os.path.join(DATA_DIR, "y_test_plant.npy"),allow_pickle=True)
 
-X_train_disease = np.load(os.path.join(DATA_DIR, "X_train_disease.npy"))
-X_test_disease = np.load(os.path.join(DATA_DIR, "X_test_disease.npy"))
-y_train_disease = np.load(os.path.join(DATA_DIR, "y_train_disease.npy"))
-y_test_disease = np.load(os.path.join(DATA_DIR, "y_test_disease.npy"))
+X_train_disease = np.load(os.path.join(DATA_DIR, "X_train_disease.npy"),allow_pickle=True)
+X_test_disease = np.load(os.path.join(DATA_DIR, "X_test_disease.npy"),allow_pickle=True)
+y_train_disease = np.load(os.path.join(DATA_DIR, "y_train_disease.npy"),allow_pickle=True)
+y_test_disease = np.load(os.path.join(DATA_DIR, "y_test_disease.npy"),allow_pickle=True)
 
 # Get list of label names for the report
 plant_labels = [plant_names[i] for i in range(len(plant_names))]
