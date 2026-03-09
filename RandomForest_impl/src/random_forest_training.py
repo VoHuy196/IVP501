@@ -12,7 +12,7 @@ BASE_DIR   = os.path.join(os.path.dirname(__file__), "..")
 DATA_DIR   = os.path.join(BASE_DIR, "data")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 LOGS_DIR   = os.path.join(BASE_DIR, "logs")
-
+GLOBAL_LOG_FILE = os.path.join(LOGS_DIR, "training_history_all.csv")
 # ========== LOAD LABEL MAP ==========
 with open(os.path.join(BASE_DIR, "label_map.json"), "r", encoding="utf-8") as f:
     label_map = json.load(f)
@@ -28,6 +28,7 @@ def run_random_forest(task_name, X_train, y_train, X_test, y_test,
     best_model  = None
     best_f1     = -1
     best_params = {}
+    task_entries = []   # collect all entries for this task
 
     for n_est in n_estimators_values:
         for max_depth in depth_values:
@@ -44,6 +45,7 @@ def run_random_forest(task_name, X_train, y_train, X_test, y_test,
                 min_samples_split=10,
                 min_samples_leaf=5,
                 max_features="sqrt",
+                class_weight='balanced',
                 n_jobs=-1,
                 random_state=42,
                 verbose=0
@@ -70,9 +72,9 @@ def run_random_forest(task_name, X_train, y_train, X_test, y_test,
                 best_model  = model
                 best_params = {"n_estimators": n_est, "max_depth": depth_label}
 
-            # --- Log ---
+            # --- Log (per-task CSV) ---
             timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            log_entry = pd.DataFrame([{
+            entry = {
                 "Time"         : timestamp,
                 "Task"         : task_name,
                 "n_estimators" : n_est,
@@ -82,11 +84,14 @@ def run_random_forest(task_name, X_train, y_train, X_test, y_test,
                 "F1 Score"     : f1,
                 "Train Size"   : X_train.shape[0],
                 "Features"     : X_train.shape[1]
-            }])
+            }
+            log_entry = pd.DataFrame([entry])
             if not os.path.isfile(log_file):
                 log_entry.to_csv(log_file, index=False)
             else:
                 log_entry.to_csv(log_file, mode="a", header=False, index=False)
+
+            task_entries.append(entry)
 
             # --- Report ---
             reports_dir = os.path.join(LOGS_DIR, "reports")
@@ -112,6 +117,22 @@ def run_random_forest(task_name, X_train, y_train, X_test, y_test,
                     f.write(f"  {rank:2d}. f{idx:<6d}  importance={importances[idx]:.6f}\n")
             print(f"[OK] Report saved -> '{report_name}'")
 
+    # --- Mark best & append to global log ---
+    global_rows = []
+    for e in task_entries:
+        row = dict(e)
+        row["is_best"] = (
+            e["n_estimators"] == best_params.get("n_estimators") and
+            e["max_depth"]    == best_params.get("max_depth")
+        )
+        global_rows.append(row)
+
+    global_df = pd.DataFrame(global_rows)
+    if not os.path.isfile(GLOBAL_LOG_FILE):
+        global_df.to_csv(GLOBAL_LOG_FILE, index=False)
+    else:
+        global_df.to_csv(GLOBAL_LOG_FILE, mode="a", header=False, index=False)
+
     return best_f1, best_model, best_params
 
 
@@ -126,8 +147,8 @@ y_test_plant  = np.load(os.path.join(DATA_DIR, "y_test_plant.npy"))
 print("Plant train shape:", X_train_plant.shape)
 
 # ========== HYPERPARAMETER GRID ==========
-n_estimators_values = [50, 100, 200]
-depth_values        = [10, 20, None]
+n_estimators_values = [50, 100, 200, 300]
+depth_values        = [10, 20, 30, None]
 log_file            = os.path.join(LOGS_DIR, "training_history_rf.csv")
 
 os.makedirs(MODELS_DIR, exist_ok=True)
