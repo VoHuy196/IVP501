@@ -1,0 +1,23 @@
+EXPERIMENT REPORT - 2026-03-09 18:44:10
+Task: plant
+Model: KNeighborsClassifier (n_neighbors=9, weights='distance')
+========================================
+CLASSIFICATION REPORT:
+              precision    recall  f1-score   support
+
+     Plant_A       0.14      0.06      0.08        54
+     Plant_B       0.24      0.13      0.17        62
+     Plant_C       0.26      0.34      0.29        65
+     Plant_D       0.17      0.12      0.14        58
+     Plant_E       0.24      0.46      0.31        61
+
+    accuracy                           0.23       300
+   macro avg       0.21      0.22      0.20       300
+weighted avg       0.21      0.23      0.20       300
+
+CONFUSION MATRIX:
+[[ 3  3 20  6 22]
+ [ 6  8 14  8 26]
+ [ 4  6 22 12 21]
+ [ 5  9 15  7 22]
+ [ 4  7 14  8 28]]
