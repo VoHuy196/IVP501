@@ -1,0 +1,43 @@
+EXPERIMENT REPORT - 2026-03-09 19:25:06
+Task  : disease_Corn_maize
+Model : RandomForestClassifier (n_estimators=50, max_depth=10, criterion=gini)
+========================================
+CLASSIFICATION REPORT:
+                                     precision    recall  f1-score   support
+
+Cercospora_leaf_spot Gray_leaf_spot       0.93      0.61      0.74       154
+                       Common_rust_       1.00      1.00      1.00       358
+               Northern_Leaf_Blight       0.83      0.97      0.89       295
+                            healthy       0.99      1.00      0.99       349
+
+                           accuracy                           0.94      1156
+                          macro avg       0.94      0.89      0.91      1156
+                       weighted avg       0.94      0.94      0.94      1156
+
+CONFUSION MATRIX:
+[[ 94   0  59   1]
+ [  0 357   0   1]
+ [  7   0 286   2]
+ [  0   0   0 349]]
+
+FEATURE IMPORTANCES (Top 20):
+   1. f63      importance=0.049978
+   2. f28      importance=0.041393
+   3. f25      importance=0.040393
+   4. f64      importance=0.034511
+   5. f31      importance=0.025711
+   6. f4       importance=0.024776
+   7. f0       importance=0.024388
+   8. f30      importance=0.021983
+   9. f23      importance=0.021383
+  10. f19      importance=0.021020
+  11. f5       importance=0.020110
+  12. f66      importance=0.020031
+  13. f3       importance=0.017239
+  14. f24      importance=0.016310
+  15. f6       importance=0.014342
+  16. f1       importance=0.014188
+  17. f1627    importance=0.013930
+  18. f22      importance=0.012082
+  19. f1857    importance=0.012070
+  20. f32      importance=0.011412

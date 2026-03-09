@@ -1,0 +1,39 @@
+EXPERIMENT REPORT - 2026-03-09 19:25:53
+Task  : disease_Peach
+Model : RandomForestClassifier (n_estimators=200, max_depth=20, criterion=gini)
+========================================
+CLASSIFICATION REPORT:
+                precision    recall  f1-score   support
+
+Bacterial_spot       0.98      1.00      0.99       690
+       healthy       0.99      0.85      0.92       108
+
+      accuracy                           0.98       798
+     macro avg       0.98      0.93      0.95       798
+  weighted avg       0.98      0.98      0.98       798
+
+CONFUSION MATRIX:
+[[689   1]
+ [ 16  92]]
+
+FEATURE IMPORTANCES (Top 20):
+   1. f64      importance=0.056708
+   2. f65      importance=0.037681
+   3. f66      importance=0.027005
+   4. f58      importance=0.022589
+   5. f67      importance=0.021893
+   6. f77      importance=0.020476
+   7. f75      importance=0.018968
+   8. f56      importance=0.018178
+   9. f47      importance=0.016752
+  10. f76      importance=0.016394
+  11. f53      importance=0.016275
+  12. f34      importance=0.015385
+  13. f31      importance=0.014886
+  14. f54      importance=0.014503
+  15. f95      importance=0.013282
+  16. f52      importance=0.013252
+  17. f57      importance=0.012566
+  18. f86      importance=0.012515
+  19. f74      importance=0.012105
+  20. f51      importance=0.011527

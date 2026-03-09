@@ -6,16 +6,17 @@ import numpy as np
 import json
 import joblib
 import os
+import glob
 from skimage.feature import hog
 from skimage import color
 from skimage.transform import resize
 
 # ========== PATHS ==========
-BASE_DIR           = os.path.join(os.path.dirname(__file__), "RandomForest_impl")
-PLANT_MODEL_PATH   = os.path.join(BASE_DIR, "models", "rf_best_plant_n200_depthfull.pkl")
-DISEASE_MODEL_PATH = os.path.join(BASE_DIR, "models", "rf_best_disease_n200_depthfull.pkl")
-SCALER_PATH        = os.path.join(BASE_DIR, "models", "scaler.pkl")
-LABEL_MAP_PATH     = os.path.join(BASE_DIR, "label_map.json")
+BASE_DIR        = os.path.join(os.path.dirname(__file__), "RandomForest_impl")
+PLANT_MODEL_PATH = os.path.join(BASE_DIR, "models", "rf_best_plant_n200_depthfull.pkl")
+SCALER_PATH      = os.path.join(BASE_DIR, "models", "scaler.pkl")
+LABEL_MAP_PATH   = os.path.join(BASE_DIR, "label_map.json")
+DISEASE_MODELS_DIR = os.path.join(BASE_DIR, "models", "disease_per_plant")
 
 # ========== FEATURE EXTRACTION (same as feature_extraction.py) ==========
 def extract_color_histogram(image):
@@ -49,13 +50,16 @@ def extract_shape(image):
     return np.array([area, perimeter, aspect_ratio, solidity])
 
 def extract_features(image):
-    """Returns scaled feature vector ready for model prediction."""
     feat = np.concatenate([
         extract_color_histogram(image),
         extract_hog(image),
         extract_shape(image)
     ]).astype(np.float32)
     return feat
+
+def plant_to_safe_name(plant_name):
+    """Convert plant name to the safe filename suffix used when saving models."""
+    return plant_name.replace(",", "").replace(" ", "_").replace("(", "").replace(")", "")
 
 
 # ========== APP ==========
@@ -65,13 +69,13 @@ class PlantDiseaseApp:
         self.root.title("Plant Disease Detection - Random Forest")
         self.root.geometry("1000x580")
 
-        self.cv_image        = None
-        self.model_plant     = None
-        self.model_disease   = None
-        self.scaler          = None
-        self.plant_names     = {}
-        self.disease_names   = {}
-        self.is_model_ready  = False
+        self.cv_image           = None
+        self.model_plant        = None
+        self.disease_models     = {}   # {plant_name: model}
+        self.scaler             = None
+        self.plant_names        = {}   # {idx: plant_name}
+        self.disease_by_plant   = {}   # {plant_name: {disease_name: local_idx}}
+        self.is_model_ready     = False
 
         # --- LEFT PANEL ---
         self.left_frame = tk.Frame(root, width=320, bg="#f5f5f5", padx=20, pady=20)
@@ -123,21 +127,37 @@ class PlantDiseaseApp:
 
     # ------------------------------------------------------------------
     def load_models(self):
-        """Load both Random Forest models, scaler, and label map."""
+        """Load plant model, all per-plant disease models, scaler, and label map."""
         try:
-            self.model_plant   = joblib.load(PLANT_MODEL_PATH)
-            self.model_disease = joblib.load(DISEASE_MODEL_PATH)
-            self.scaler        = joblib.load(SCALER_PATH)
+            self.model_plant = joblib.load(PLANT_MODEL_PATH)
+            self.scaler      = joblib.load(SCALER_PATH)
 
             with open(LABEL_MAP_PATH, "r", encoding="utf-8") as f:
                 label_map = json.load(f)
 
-            self.plant_names   = {v: k for k, v in label_map["plant"].items()}
-            self.disease_names = {v: k for k, v in label_map["disease"].items()}
+            self.plant_names      = {v: k for k, v in label_map["plant"].items()}
+            self.disease_by_plant = label_map["disease_by_plant"]
+
+            # Load all per-plant disease models from models/disease_per_plant/
+            loaded = 0
+            if os.path.isdir(DISEASE_MODELS_DIR):
+                for model_file in glob.glob(os.path.join(DISEASE_MODELS_DIR, "rf_disease_*.pkl")):
+                    # filename: rf_disease_<SafePlantName>_n<X>_depth<Y>.pkl
+                    # Match back to original plant name
+                    for plant_name in self.disease_by_plant:
+                        safe = plant_to_safe_name(plant_name)
+                        basename = os.path.basename(model_file)
+                        if basename.startswith(f"rf_disease_{safe}_"):
+                            # Keep only the best (last loaded wins; training saves only best)
+                            self.disease_models[plant_name] = joblib.load(model_file)
+                            loaded += 1
+                            break
 
             self.is_model_ready = True
-            self.lbl_status.config(text="Models loaded. Ready.", fg="green")
-            self.canvas_label.config(text="Models ready.\nSelect a leaf image to start.")
+            self.lbl_status.config(
+                text=f"Models loaded. {loaded} disease models ready.", fg="green")
+            self.canvas_label.config(
+                text=f"Models ready ({loaded} disease classifiers).\nSelect a leaf image to start.")
 
         except FileNotFoundError as e:
             messagebox.showerror("Model Not Found", str(e))
@@ -145,7 +165,7 @@ class PlantDiseaseApp:
 
     # ------------------------------------------------------------------
     def load_image(self):
-        """Open file dialog, run prediction, show results."""
+        """Open file dialog, run hierarchical prediction, show results."""
         if not self.is_model_ready:
             messagebox.showwarning("Not Ready", "Models are still loading. Please wait.")
             return
@@ -155,7 +175,6 @@ class PlantDiseaseApp:
         if not file_path:
             return
 
-        # Read & display
         self.cv_image = cv2.imread(file_path)
         if self.cv_image is None:
             messagebox.showerror("Error", "Cannot read image file.")
@@ -166,15 +185,33 @@ class PlantDiseaseApp:
         feat        = extract_features(self.cv_image)
         feat_scaled = self.scaler.transform([feat])
 
-        # Predict
-        plant_idx   = self.model_plant.predict(feat_scaled)[0]
-        disease_idx = self.model_disease.predict(feat_scaled)[0]
-
-        plant_name   = self.plant_names.get(int(plant_idx),   f"Unknown({plant_idx})")
-        disease_name = self.disease_names.get(int(disease_idx), f"Unknown({disease_idx})")
-
-        # Display results
+        # --- Step 1: Predict plant ---
+        plant_idx  = int(self.model_plant.predict(feat_scaled)[0])
+        plant_name = self.plant_names.get(plant_idx, f"Unknown({plant_idx})")
         self.lbl_plant.config(text=plant_name)
+
+        # --- Step 2: Predict disease using plant-specific model ---
+        disease_model = self.disease_models.get(plant_name)
+        if disease_model is None:
+            # Single-class plant (e.g. Blueberry, Orange) — look up its only disease
+            d_map    = self.disease_by_plant.get(plant_name, {})
+            if len(d_map) == 1:
+                disease_name = next(iter(d_map))
+                if disease_name.lower() == "healthy":
+                    self.lbl_disease.config(text="✅ Healthy", fg="green")
+                else:
+                    self.lbl_disease.config(text=f"⚠️ {disease_name}", fg="red")
+            else:
+                self.lbl_disease.config(text="No disease model for this plant", fg="orange")
+            self.lbl_status.config(text="Prediction complete.", fg="blue")
+            return
+
+        disease_local_idx = int(disease_model.predict(feat_scaled)[0])
+
+        # Look up disease name from hierarchical map
+        d_map        = self.disease_by_plant.get(plant_name, {})
+        idx_to_d     = {v: k for k, v in d_map.items()}
+        disease_name = idx_to_d.get(disease_local_idx, f"Unknown({disease_local_idx})")
 
         if disease_name.lower() == "healthy":
             self.lbl_disease.config(text="✅ Healthy", fg="green")
@@ -186,13 +223,13 @@ class PlantDiseaseApp:
     # ------------------------------------------------------------------
     def display_image(self, img):
         """Resize and show image on the right panel."""
-        h, w     = img.shape[:2]
-        new_w    = 650
-        new_h    = int(h * (new_w / w))
-        resized  = cv2.resize(img, (new_w, new_h))
-        rgb      = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
-        pil_img  = Image.fromarray(rgb)
-        tk_img   = ImageTk.PhotoImage(pil_img)
+        h, w    = img.shape[:2]
+        new_w   = 650
+        new_h   = int(h * (new_w / w))
+        resized = cv2.resize(img, (new_w, new_h))
+        rgb     = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
+        pil_img = Image.fromarray(rgb)
+        tk_img  = ImageTk.PhotoImage(pil_img)
         self.canvas_label.config(image=tk_img, text="")
         self.canvas_label.image = tk_img
 
