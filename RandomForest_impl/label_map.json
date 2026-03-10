@@ -15,27 +15,72 @@
     "Strawberry": 12,
     "Tomato": 13
   },
-  "disease": {
-    "Apple_scab": 0,
-    "Bacterial_spot": 1,
-    "Black_rot": 2,
-    "Cedar_apple_rust": 3,
-    "Cercospora_leaf_spot Gray_leaf_spot": 4,
-    "Common_rust_": 5,
-    "Early_blight": 6,
-    "Esca_(Black_Measles)": 7,
-    "Haunglongbing_(Citrus_greening)": 8,
-    "Late_blight": 9,
-    "Leaf_Mold": 10,
-    "Leaf_blight_(Isariopsis_Leaf_Spot)": 11,
-    "Leaf_scorch": 12,
-    "Northern_Leaf_Blight": 13,
-    "Powdery_mildew": 14,
-    "Septoria_leaf_spot": 15,
-    "Spider_mites Two-spotted_spider_mite": 16,
-    "Target_Spot": 17,
-    "Tomato_Yellow_Leaf_Curl_Virus": 18,
-    "Tomato_mosaic_virus": 19,
-    "healthy": 20
+  "disease_by_plant": {
+    "Apple": {
+      "Apple_scab": 0,
+      "Black_rot": 1,
+      "Cedar_apple_rust": 2,
+      "healthy": 3
+    },
+    "Blueberry": {
+      "healthy": 0
+    },
+    "Cherry_(including_sour)": {
+      "Powdery_mildew": 0,
+      "healthy": 1
+    },
+    "Corn_(maize)": {
+      "Cercospora_leaf_spot Gray_leaf_spot": 0,
+      "Common_rust_": 1,
+      "Northern_Leaf_Blight": 2,
+      "healthy": 3
+    },
+    "Grape": {
+      "Black_rot": 0,
+      "Esca_(Black_Measles)": 1,
+      "Leaf_blight_(Isariopsis_Leaf_Spot)": 2,
+      "healthy": 3
+    },
+    "Orange": {
+      "Haunglongbing_(Citrus_greening)": 0
+    },
+    "Peach": {
+      "Bacterial_spot": 0,
+      "healthy": 1
+    },
+    "Pepper,_bell": {
+      "Bacterial_spot": 0,
+      "healthy": 1
+    },
+    "Potato": {
+      "Early_blight": 0,
+      "Late_blight": 1,
+      "healthy": 2
+    },
+    "Raspberry": {
+      "healthy": 0
+    },
+    "Soybean": {
+      "healthy": 0
+    },
+    "Squash": {
+      "Powdery_mildew": 0
+    },
+    "Strawberry": {
+      "Leaf_scorch": 0,
+      "healthy": 1
+    },
+    "Tomato": {
+      "Bacterial_spot": 0,
+      "Early_blight": 1,
+      "Late_blight": 2,
+      "Leaf_Mold": 3,
+      "Septoria_leaf_spot": 4,
+      "Spider_mites Two-spotted_spider_mite": 5,
+      "Target_Spot": 6,
+      "Tomato_Yellow_Leaf_Curl_Virus": 7,
+      "Tomato_mosaic_virus": 8,
+      "healthy": 9
+    }
   }
 }
