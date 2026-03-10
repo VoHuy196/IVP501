@@ -1,1 +1,41 @@
-{"plant": {"Plant_A": 0, "Plant_B": 1, "Plant_C": 2, "Plant_D": 3, "Plant_E": 4}, "disease": {"Healthy": 0, "Disease_1": 1, "Disease_2": 2, "Disease_3": 3, "Disease_4": 4, "Disease_5": 5, "Disease_6": 6, "Disease_7": 7, "Disease_8": 8, "Disease_9": 9}}
+{
+  "plant": {
+    "Apple": 0,
+    "Blueberry": 1,
+    "Cherry_(including_sour)": 2,
+    "Corn_(maize)": 3,
+    "Grape": 4,
+    "Orange": 5,
+    "Peach": 6,
+    "Pepper,_bell": 7,
+    "Potato": 8,
+    "Raspberry": 9,
+    "Soybean": 10,
+    "Squash": 11,
+    "Strawberry": 12,
+    "Tomato": 13
+  },
+  "disease": {
+    "Apple_scab": 0,
+    "Bacterial_spot": 1,
+    "Black_rot": 2,
+    "Cedar_apple_rust": 3,
+    "Cercospora_leaf_spot Gray_leaf_spot": 4,
+    "Common_rust_": 5,
+    "Early_blight": 6,
+    "Esca_(Black_Measles)": 7,
+    "Haunglongbing_(Citrus_greening)": 8,
+    "Late_blight": 9,
+    "Leaf_Mold": 10,
+    "Leaf_blight_(Isariopsis_Leaf_Spot)": 11,
+    "Leaf_scorch": 12,
+    "Northern_Leaf_Blight": 13,
+    "Powdery_mildew": 14,
+    "Septoria_leaf_spot": 15,
+    "Spider_mites Two-spotted_spider_mite": 16,
+    "Target_Spot": 17,
+    "Tomato_Yellow_Leaf_Curl_Virus": 18,
+    "Tomato_mosaic_virus": 19,
+    "healthy": 20
+  }
+}
