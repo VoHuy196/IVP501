@@ -13,20 +13,11 @@ from skimage.transform import resize
 # ========== PATHS ==========
 BASE_DIR = os.path.dirname(__file__)
 MODELS_DIR = os.path.join(BASE_DIR, "models")
+# Pointing to RandomForest_impl for the global label_map
+RF_DIR = os.path.join(BASE_DIR, "..", "RandomForest_impl")
+LABEL_MAP_PATH = os.path.join(RF_DIR, "label_map.json")
 
-# Reuse scaler and label map from KNN_impl
-SCALER_PATH = os.path.join(BASE_DIR, "models", "scaler.pkl")
-LABEL_MAP_PATH = os.path.join(BASE_DIR, "label_map.json")
-
-# Automatically locate trained KNN model filenames (k may vary between runs)
-try:
-    PLANT_MODEL_PATH = [os.path.join(MODELS_DIR, f) for f in os.listdir(MODELS_DIR) if f.startswith("knn_best_plant")][0]
-    DISEASE_MODEL_PATH = [os.path.join(MODELS_DIR, f) for f in os.listdir(MODELS_DIR) if f.startswith("knn_best_disease")][0]
-except IndexError:
-    PLANT_MODEL_PATH = ""
-    DISEASE_MODEL_PATH = ""
-
-# ========== FEATURE EXTRACTION (same as RF version) ==========
+# ========== FEATURE EXTRACTION ==========
 def extract_color_histogram(image):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     h_hist = cv2.normalize(cv2.calcHist([hsv], [0], None, [32], [0, 180]), None).flatten()
@@ -69,10 +60,9 @@ class PlantDiseaseKNNApp:
 
         self.cv_image = None
         self.model_plant = None
-        self.model_disease = None
-        self.scaler = None
+        self.scaler_plant = None
         self.plant_names = {}
-        self.disease_names = {}
+        self.disease_map = {} # Store the nested dictionary for diseases
         self.is_model_ready = False
 
         # --- LEFT PANEL ---
@@ -103,30 +93,39 @@ class PlantDiseaseKNNApp:
         self.canvas_label = tk.Label(self.right_frame, text="Select a leaf image to start.", bg="black", fg="white", font=("Arial", 12))
         self.canvas_label.pack(expand=True)
 
-        self.root.after(300, self.load_models)
+        self.root.after(300, self.load_initial_models)
 
-    def load_models(self):
+    def load_initial_models(self):
         try:
-            if not PLANT_MODEL_PATH or not DISEASE_MODEL_PATH:
-                raise FileNotFoundError("KNN model not found. Please run the training script first.")
-
-            self.model_plant = joblib.load(PLANT_MODEL_PATH)
-            self.model_disease = joblib.load(DISEASE_MODEL_PATH)
-            self.scaler = joblib.load(SCALER_PATH)
-
+            # 1. Load label map
+            if not os.path.exists(LABEL_MAP_PATH):
+                raise FileNotFoundError(f"Label map not found at {LABEL_MAP_PATH}")
+                
             with open(LABEL_MAP_PATH, "r", encoding="utf-8") as f:
-                label_map = json.load(f)
+                label_data = json.load(f)
 
-            self.plant_names = {v: k for k, v in label_map["plant"].items()}
-            self.disease_names = {v: k for k, v in label_map["disease"].items()}
+            self.plant_names = {v: k for k, v in label_data["plant"].items()}
+            self.disease_map = label_data.get("disease_by_plant", {})
+
+            # 2. Locate and load the Plant KNN model
+            plant_model_files = [f for f in os.listdir(MODELS_DIR) if f.startswith("knn_best_plant")]
+            if not plant_model_files:
+                raise FileNotFoundError("KNN plant model not found. Run training script first.")
+            self.model_plant = joblib.load(os.path.join(MODELS_DIR, plant_model_files[0]))
+
+            # 3. Load the Plant Scaler
+            scaler_plant_path = os.path.join(MODELS_DIR, "scaler.pkl")
+            if not os.path.exists(scaler_plant_path):
+                raise FileNotFoundError("scaler_plant.pkl not found in models directory.")
+            self.scaler_plant = joblib.load(scaler_plant_path)
 
             self.is_model_ready = True
-            self.lbl_status.config(text="Models loaded. Ready.", fg="green")
+            self.lbl_status.config(text="Plant model loaded. Ready.", fg="green")
             self.canvas_label.config(text="Models ready.\nSelect a leaf image to start.")
 
-        except FileNotFoundError as e:
+        except Exception as e:
             messagebox.showerror("Model Load Error", str(e))
-            self.lbl_status.config(text="Model file missing!", fg="red")
+            self.lbl_status.config(text="Initialization failed!", fg="red")
 
     def load_image(self):
         if not self.is_model_ready: return
@@ -137,24 +136,55 @@ class PlantDiseaseKNNApp:
         if self.cv_image is None: return
         self.display_image(self.cv_image)
 
-        # Extract and normalize features
+        # Clear previous text
+        self.lbl_plant.config(text="Analyzing...")
+        self.lbl_disease.config(text="-", fg="gray")
+        self.root.update()
+
+        # Step 1: Extract Base Features
         feat = extract_features(self.cv_image)
-        feat_scaled = self.scaler.transform([feat])
 
-        # Classify using KNN
-        plant_idx = self.model_plant.predict(feat_scaled)[0]
-        disease_idx = self.model_disease.predict(feat_scaled)[0]
-
+        # Step 2: Predict Plant Type
+        feat_scaled_plant = self.scaler_plant.transform([feat])
+        plant_idx = self.model_plant.predict(feat_scaled_plant)[0]
         plant_name = self.plant_names.get(int(plant_idx), f"Unknown({plant_idx})")
-        disease_name = self.disease_names.get(int(disease_idx), f"Unknown({disease_idx})")
+        self.lbl_plant.config(text=f"🌱 {plant_name.replace('_', ' ')}")
 
-        self.lbl_plant.config(text=plant_name)
-        if disease_name.lower() == "healthy":
-            self.lbl_disease.config(text="✅ Healthy", fg="green")
+        # Step 3: Predict Disease based on Plant Type
+        self.predict_disease_for_plant(feat, plant_name)
+
+    def predict_disease_for_plant(self, original_features, plant_name):
+        # Look for the specific disease model and scaler for this plant
+        disease_model_files = [f for f in os.listdir(MODELS_DIR) if f.startswith(f"knn_best_disease_{plant_name}")]
+        scaler_disease_path = os.path.join(MODELS_DIR, f"scaler_disease_{plant_name}.pkl")
+
+        if disease_model_files and os.path.exists(scaler_disease_path):
+            try:
+                model_disease = joblib.load(os.path.join(MODELS_DIR, disease_model_files[0]))
+                scaler_disease = joblib.load(scaler_disease_path)
+
+                # Scale features using the SPECIFIC scaler for this plant's disease model
+                feat_scaled_disease = scaler_disease.transform([original_features])
+                disease_idx = model_disease.predict(feat_scaled_disease)[0]
+
+                # Map index to disease name
+                disease_dict = {v: k for k, v in self.disease_map.get(plant_name, {}).items()}
+                disease_name = disease_dict.get(int(disease_idx), f"Unknown({disease_idx})")
+
+                if disease_name.lower() == "healthy":
+                    self.lbl_disease.config(text="✅ Healthy", fg="green")
+                else:
+                    self.lbl_disease.config(text=f"⚠️ {disease_name.replace('_', ' ')}", fg="red")
+                    
+                self.lbl_status.config(text="Prediction complete.", fg="blue")
+                
+            except Exception as e:
+                self.lbl_disease.config(text="Error analyzing disease", fg="red")
+                self.lbl_status.config(text=f"Error: {str(e)}", fg="red")
         else:
-            self.lbl_disease.config(text=f"⚠️ {disease_name}", fg="red")
-
-        self.lbl_status.config(text="Prediction complete.", fg="blue")
+            # E.g., Blueberry only has healthy images, so no disease model was trained
+            self.lbl_disease.config(text="✅ Healthy (No disease model)", fg="green")
+            self.lbl_status.config(text="Prediction complete.", fg="blue")
 
     def display_image(self, img):
         h, w = img.shape[:2]
