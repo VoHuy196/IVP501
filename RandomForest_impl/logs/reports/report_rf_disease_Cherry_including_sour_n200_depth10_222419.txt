@@ -1,0 +1,39 @@
+EXPERIMENT REPORT - 2026-03-09 22:24:19
+Task  : disease_Cherry_including_sour
+Model : RandomForestClassifier (n_estimators=200, max_depth=10, criterion=gini)
+========================================
+CLASSIFICATION REPORT:
+                precision    recall  f1-score   support
+
+Powdery_mildew       1.00      1.00      1.00       316
+       healthy       1.00      1.00      1.00       256
+
+      accuracy                           1.00       572
+     macro avg       1.00      1.00      1.00       572
+  weighted avg       1.00      1.00      1.00       572
+
+CONFUSION MATRIX:
+[[316   0]
+ [  1 255]]
+
+FEATURE IMPORTANCES (Top 20):
+   1. f33      importance=0.031102
+   2. f31      importance=0.027741
+   3. f89      importance=0.026376
+   4. f2       importance=0.024825
+   5. f3       importance=0.024631
+   6. f95      importance=0.023561
+   7. f32      importance=0.022497
+   8. f5       importance=0.020300
+   9. f24      importance=0.018142
+  10. f667     importance=0.016757
+  11. f4       importance=0.016285
+  12. f1153    importance=0.015893
+  13. f6       importance=0.015466
+  14. f7       importance=0.015456
+  15. f93      importance=0.015184
+  16. f26      importance=0.014931
+  17. f1261    importance=0.013854
+  18. f87      importance=0.013324
+  19. f88      importance=0.013130
+  20. f1054    importance=0.012824
