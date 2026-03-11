@@ -1,95 +1,131 @@
 import numpy as np
-from sklearn.svm import LinearSVC
-from sklearn.metrics import classification_report, confusion_matrix, f1_score, accuracy_score
-from sklearn.decomposition import PCA
-import joblib
 import os
+import joblib
 import datetime
 import pandas as pd
 import gc
+import sys
+from sklearn.svm import LinearSVC
+from sklearn.metrics import classification_report, f1_score, accuracy_score, confusion_matrix
+from sklearn.model_selection import GridSearchCV
 
-# ========== REPORT DIR ==========
-report_dir = "reports"
-if not os.path.exists(report_dir):
-    os.makedirs(report_dir)
+# ========== 1. HYPERPARAMETERS CONFIGURATION ==========
+C_GRID = [1e-4, 5e-4, 1e-3, 5e-3, 1e-2]
 
-log_file = os.path.join(report_dir, "training_history.csv")
-c_list = [0.001, 0.01, 0.1, 1.0, 10.0, 100.0]
+data_dir = r"D:\project_ML\IVP501\SVM_impl\input_vectors"
+report_base_dir = r"D:\project_ML\IVP501\SVM_impl\reports"
+os.makedirs(report_base_dir, exist_ok=True)
 
-# ========== DIMENSIONALITY REDUCTION ==========
-pca = PCA(n_components=0.95)
+global_log_file = os.path.join(report_base_dir, "global_training_history.csv")
 
-# ========== LOAD DATA ==========
-print("Loading train/test datasets...")
+# ========== 2. LOAD DATASET ==========
+print("Loading datasets ...")
+try:
+    X_train_all = np.load(os.path.join(data_dir, "X_train_pca.npy"), mmap_mode='r')
+    X_test_all = np.load(os.path.join(data_dir, "X_test_pca.npy"), mmap_mode='r')
+    y_plant_train = np.load(os.path.join(data_dir, "y_plant_train.npy"))
+    y_plant_test = np.load(os.path.join(data_dir, "y_plant_test.npy"))
+    y_disease_train = np.load(os.path.join(data_dir, "y_disease_train.npy"))
+    y_disease_test = np.load(os.path.join(data_dir, "y_disease_test.npy"))
+except Exception as e:
+    print(f"Error loading files: {e}")
+    sys.exit(1)
 
-X_train = np.load("X_train.npy")
-y_train = np.load("y_train.npy")
-X_test = np.load("X_test.npy")
-y_test = np.load("y_test.npy")
+unique_plants = np.unique(y_plant_train)
+all_tasks = ["ROOT_PLANT_SPECIES"] + list(unique_plants)
 
-print("Train shape:", X_train.shape)
-print("Test shape:", X_test.shape)
+# ========== 3. TRAINING LOOP ==========
 
-# ========== TRAINING MODEL ==========
-print("Training SVM...")
-X_train_pca = pca.fit_transform(X_train)
-X_test_pca = pca.transform(X_test)
-print("Train shape after PCA:", X_train_pca.shape)
-print("Test shape after PCA:", X_test_pca.shape)
+for task in all_tasks:
 
-for c_val in c_list:
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"Running SVM with C = {c_val}")
+    print(f"\n{'='*60}")
+    print(f"TASK: {task}")
+    print(f"{'='*60}")
+    task_dir = os.path.join(report_base_dir, task.replace(" ", "_").lower())
+    os.makedirs(task_dir, exist_ok=True)
 
+    # ----- Select dataset -----
+    if task == "ROOT_PLANT_SPECIES":
+        X_tr, y_tr = X_train_all, y_plant_train
+        X_te, y_te = X_test_all, y_plant_test
+    else:
+        train_mask = (y_plant_train == task)
+        test_mask = (y_plant_test == task)
+
+        X_tr = X_train_all[train_mask]
+        y_tr = y_disease_train[train_mask]
+
+        X_te = X_test_all[test_mask]
+        y_te = y_disease_test[test_mask]
+
+        if len(np.unique(y_tr)) < 2:
+            print(f"-> Skipping {task}: Insufficient classes.")
+            continue
+    print(f"Samples: {len(X_tr)} | Classes: {len(np.unique(y_tr))}")
+
+    # ========== 4. HYPERPARAMETER SEARCH ==========
     try:
-        model = LinearSVC(C=c_val, max_iter=1000, dual=False, verbose=1, tol=1e-2)
-        model.fit(X_train_pca, y_train)
-        y_pred = model.predict(X_test_pca)
-        train_acc = model.score(X_train_pca, y_train)
-        test_acc = accuracy_score(y_test, y_pred)
-        f1 = f1_score(y_test, y_pred)
+        base_model = LinearSVC(
+            max_iter=2000,
+            dual=False,
+            tol=1e-3,
+            class_weight='balanced',
+            random_state=42,
+        )
+        
+        param_grid = {"C": C_GRID}
+        grid = GridSearchCV(
+            base_model,
+            param_grid,
+            cv=5,
+            scoring='f1_weighted',
+            n_jobs=-1
+        )
+        print("Running cross-validation to find best C...")
 
-        print(f"Done! Train Acc: {train_acc:.4f} | Test Acc: {test_acc:.4f} | F1: {f1:.4f}")
+        grid.fit(X_tr, y_tr)
+        model = grid.best_estimator_
+        best_c = grid.best_params_["C"]
 
+        print(f"Best C found: {best_c}")
+
+        # ========== 5. EVALUATION ==========
+        y_pred = model.predict(X_te)
+        train_acc = model.score(X_tr, y_tr)
+        test_acc = accuracy_score(y_te, y_pred)
+        f1 = f1_score(y_te, y_pred, average='weighted')
+
+        print(f"Done! Train: {train_acc:.4f} | Test: {test_acc:.4f} | F1: {f1:.4f}")
+
+        # Save Results
+        model_save_path = os.path.join(task_dir, f"model_{task.lower()}_C{best_c}.pkl")
+        joblib.dump(model, model_save_path)
+
+        # ========== 6. SAVE REPORT ==========
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        report_filename = f"Report_{task}_C{best_c}.txt"
+        with open(os.path.join(task_dir, report_filename), "w", encoding="utf-8") as f:
+            f.write(f"TASK: {task} | C: {best_c}\n")
+            f.write(classification_report(y_te, y_pred))
+        
+        # ========== 7. LOG METRICS ==========
         log_entry = pd.DataFrame([{
             "Time": timestamp,
-            "C":    c_val,
-            "Train accuracy": train_acc,
-            "Test accuracy": test_acc,
-            "F1 Score": f1,
-            "Train Size": X_train_pca.shape[0],
-            "Features": X_train_pca.shape[1]
+            "Task": task,
+            "Best C": best_c,
+            "Train_Acc": train_acc,
+            "Test_Acc": test_acc,
+            "F1 score": f1
         }])
+        log_entry.to_csv(global_log_file, mode='a', header=not os.path.exists(global_log_file), index=False)
 
-        if not os.path.isfile(log_file):
-            log_entry.to_csv(log_file, index=False)
-        else:
-            log_entry.to_csv(log_file, mode='a', header=False, index=False)
-
-        # Report to txt
-        report_name = os.path.join(report_dir, f"report_C{c_val}_{datetime.datetime.now().strftime('%H%M%S')}.txt")
-        with open(report_name, "w", encoding="utf-8") as f:
-            f.write(f"EXPERIMENT REPORT - {timestamp}\n")
-            f.write(f"Model: LinearSVC (C={c_val})\n")
-            f.write("="*40 + "\n")
-            f.write("CLASSIFICATION REPORT:\n")
-            f.write(f"Train Accuracy: {train_acc}\n")
-            f.write(f"Test Accuracy: {test_acc}\n")
-            f.write("-" * 30 + "\n")
-            f.write(classification_report(y_test, y_pred))
-            f.write("\nCONFUSION MATRIX:\n")
-            f.write(np.array2string(confusion_matrix(y_test, y_pred)))
-
-        # ========== SAVE MODEL ==========
-        joblib.dump(model, os.path.join(report_dir, f"model_C{c_val}.pkl"))
-
-        del model
-        del y_pred
+        del model, y_pred
         gc.collect()
 
     except Exception as e:
-        print(f"[ERROR] Error at C={c_val}: {e}")
+        print(f"[FAILED] Task {task}, C={best_c}: {e}")
+        with open("crash_log.txt", "a") as f:
+            f.write(f"{timestamp} - Task: {task}, C: {best_c} - Error: {str(e)}\n")
         continue
 
-print(f"\n[DONE] All experiments are saved into {report_dir}")
-
+print("\n[FINISH] All hierarchical models trained.")

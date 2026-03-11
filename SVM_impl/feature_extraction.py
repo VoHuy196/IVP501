@@ -2,9 +2,16 @@ import os
 import cv2 
 import numpy as np
 from tqdm import tqdm
+from pathlib import Path
 from skimage.feature import hog
 from skimage import color
 from skimage.transform import resize
+
+feature_dir = Path(r"D:\project_ML\IVP501\SVM_impl\input_vectors")
+
+if not os.path.exists(feature_dir):
+    os.makedirs(feature_dir)
+    print(f"Created directory: {feature_dir}")
 
 """
 Extract Color Histogram features
@@ -81,19 +88,30 @@ def final_vector(image):
     return np.concatenate([color_feat, texture_feat, shape_feat])
 
 # ========== LOAD DATASET ==========
-dataset_path = r"D:\project_ML\binary_dataset"
+dataset_path = r"D:\project_ML\dataset\plantvillage dataset\color"
 X = []
-Y = []
+Y_plant = []        #   labels of species
+Y_diseased = []     #   labels of specific disease
 
-classes = ["healthy", "diseased"]
-for label, class_name in enumerate(classes):
-    class_path = os.path.join(dataset_path, class_name)
-    image_files = os.listdir(class_path)
+all_folders = [f for f in os.listdir(dataset_path) if os.path.isdir(os.path.join(dataset_path, f))]
 
-    print(f"Processing {class_name} ...")
+for folder_name in all_folders:
+    """
+    Separate the species name and disease name from the folder name
+    e.g "Apple__Black_rot" -> plant = "Apple", disease = "Black_rot"
+    """
+    if "__" in folder_name:
+        plant, disease = folder_name.split("__")
+    else:
+        plant = folder_name.split("__")[0]
+        disease = folder_name.split("__")[1]
+
+    folder_path = os.path.join(dataset_path, folder_name)
+    image_files = os.listdir(folder_path)
+    print(f"Processing Folder: {folder_name} (Plant: {plant}, Disease: {disease})")
 
     for img_name in tqdm(image_files):
-        img_path = os.path.join(class_path, img_name)
+        img_path = os.path.join(folder_path, img_name)
         image = cv2.imread(img_path)
 
         if image is None:
@@ -101,15 +119,20 @@ for label, class_name in enumerate(classes):
 
         feature_vector = final_vector(image)
         X.append(feature_vector)
-        Y.append(label)
+        Y_plant.append(plant)
+        Y_diseased.append(disease)
 
 X = np.array(X, dtype=np.float32)
-Y = np.array(Y, dtype=np.int32)
+Y_plant = np.array(Y_plant)
+Y_diseased = np.array(Y_diseased)
 
 print("Final dataset shape:", X.shape)
+print("Final Y plant dataset shape:", Y_plant.shape)
+print("Final Y diseased dataset shape:", Y_diseased.shape)
 
 # ========== SAVE ==========
-np.save("X.npy", X)
-np.save("y.npy", Y)
+np.save(os.path.join(feature_dir, "X_features.npy"), X)
+np.save(os.path.join(feature_dir, "Y_plant.npy"), Y_plant)
+np.save(os.path.join(feature_dir, "Y_disease.npy"), Y_diseased)
 
-print("Saved X.npy and Y.npy")
+print("\n[DONE] Saved!\n")
