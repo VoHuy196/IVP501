@@ -1,0 +1,17 @@
+EXPERIMENT REPORT - 2026-03-12 14:35:04
+Task: disease_Peach
+Model: KNeighborsClassifier (n_neighbors=5, weights='distance')
+========================================
+CLASSIFICATION REPORT:
+                precision    recall  f1-score   support
+
+Bacterial_spot       0.93      1.00      0.96       690
+       healthy       0.97      0.52      0.67       108
+
+      accuracy                           0.93       798
+     macro avg       0.95      0.76      0.82       798
+  weighted avg       0.93      0.93      0.92       798
+
+CONFUSION MATRIX:
+[[688   2]
+ [ 52  56]]
