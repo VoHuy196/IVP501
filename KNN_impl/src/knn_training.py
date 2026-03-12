@@ -128,7 +128,7 @@ try:
 
     if best_plant_model:
         joblib.dump(best_plant_model, os.path.join(MODELS_DIR, f"knn_best_plant_k{best_plant_k}.pkl"))
-        joblib.dump(scaler_plant, os.path.join(MODELS_DIR, "scaler_plant.pkl"))
+        joblib.dump(scaler_plant, os.path.join(MODELS_DIR, "scaler.pkl"))
         
     del X_train_plant, X_test_plant, X_train_plant_scaled, X_test_plant_scaled
     gc.collect()

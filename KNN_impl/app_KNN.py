@@ -48,8 +48,10 @@ def extract_shape(image):
     return np.array([area, perimeter, aspect_ratio, solidity])
 
 def extract_features(image):
-    feat = np.concatenate([extract_color_histogram(image), extract_hog(image), extract_shape(image)]).astype(np.float32)
-    return feat
+    color_feat = extract_color_histogram(image)
+    texture_feat = extract_hog(image)
+    shape_feat = extract_shape(image)
+    return np.concatenate([color_feat, texture_feat, shape_feat])
 
 # ========== APP ==========
 class PlantDiseaseKNNApp:
