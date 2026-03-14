@@ -1,0 +1,22 @@
+TASK: Peach | C: 0.01
+
+Classification Report:
+============================================================
+                 precision    recall  f1-score   support
+
+_Bacterial_spot       0.99      0.98      0.98       679
+       _healthy       0.87      0.92      0.89       118
+
+       accuracy                           0.97       797
+      macro avg       0.93      0.95      0.94       797
+   weighted avg       0.97      0.97      0.97       797
+
+============================================================
+
+Confusion Matrix:
+(rows = actual class, columns = predicted class)
+
+            _Bacterial_spot _healthy
+_Bacterial_spot     663       16
+  _healthy      10      108
+

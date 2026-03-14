@@ -1,0 +1,19 @@
+EXPERIMENT REPORT - 2026-03-07 14:10:05
+Model: LinearSVC (C=1.0)
+========================================
+CLASSIFICATION REPORT:
+Train Accuracy: 0.9177386683503013
+Test Accuracy: 0.9090351092560766
+------------------------------
+              precision    recall  f1-score   support
+
+           0       0.85      0.81      0.83      4525
+           1       0.93      0.95      0.94     11767
+
+    accuracy                           0.91     16292
+   macro avg       0.89      0.88      0.88     16292
+weighted avg       0.91      0.91      0.91     16292
+
+CONFUSION MATRIX:
+[[ 3665   860]
+ [  622 11145]]

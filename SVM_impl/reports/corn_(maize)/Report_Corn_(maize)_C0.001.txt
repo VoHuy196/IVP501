@@ -1,0 +1,26 @@
+TASK: Corn_(maize) | C: 0.001
+
+Classification Report:
+============================================================
+                                      precision    recall  f1-score   support
+
+_Cercospora_leaf_spot Gray_leaf_spot       0.70      0.67      0.69       166
+                       _Common_rust_       1.00      1.00      1.00       339
+               _Northern_Leaf_Blight       0.83      0.85      0.84       312
+                            _healthy       0.99      0.98      0.99       339
+
+                            accuracy                           0.91      1156
+                           macro avg       0.88      0.88      0.88      1156
+                        weighted avg       0.91      0.91      0.91      1156
+
+============================================================
+
+Confusion Matrix:
+(rows = actual class, columns = predicted class)
+
+            _Cercospora_leaf_spot Gray_leaf_spot _Common_rust_ _Northern_Leaf_Blight _healthy
+_Cercospora_leaf_spot Gray_leaf_spot     112        1       52        1
+_Common_rust_       0      339        0        0
+_Northern_Leaf_Blight      46        0      265        1
+  _healthy       2        0        4      333
+

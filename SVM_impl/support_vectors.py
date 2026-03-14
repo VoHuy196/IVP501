@@ -10,7 +10,7 @@ from sklearn.metrics import classification_report, f1_score, accuracy_score, con
 from sklearn.model_selection import GridSearchCV
 
 # ========== 1. HYPERPARAMETERS CONFIGURATION ==========
-C_GRID = [1e-4, 5e-4, 1e-3, 5e-3, 1e-2]
+C_GRID = [1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 1.0]
 
 data_dir = r"D:\project_ML\IVP501\SVM_impl\input_vectors"
 report_base_dir = r"D:\project_ML\IVP501\SVM_impl\reports"
@@ -66,7 +66,7 @@ for task in all_tasks:
     # ========== 4. HYPERPARAMETER SEARCH ==========
     try:
         base_model = LinearSVC(
-            max_iter=2000,
+            max_iter=5000,
             dual=False,
             tol=1e-3,
             class_weight='balanced',
@@ -105,8 +105,27 @@ for task in all_tasks:
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         report_filename = f"Report_{task}_C{best_c}.txt"
         with open(os.path.join(task_dir, report_filename), "w", encoding="utf-8") as f:
-            f.write(f"TASK: {task} | C: {best_c}\n")
+            f.write(f"TASK: {task} | C: {best_c}\n\n")
+            f.write("Classification Report:\n")
+            f.write("=" * 60 + "\n")
             f.write(classification_report(y_te, y_pred))
+            f.write("\n" + "=" * 60 + "\n\n")
+
+            cm = confusion_matrix(y_te, y_pred)
+            f.write("Confusion Matrix:\n")
+            f.write("(rows = actual class, columns = predicted class)\n\n")
+            labels = sorted(np.unique(y_te))
+
+            # Header row
+            header = " " * 12 + " ".join(f"{lbl:>8}" for lbl in labels)
+            f.write(header + "\n")
+
+            # Each row
+            for i, true_label in enumerate(labels):
+                row_str = f"{true_label:>10}" + " ".join(f"{val:8d}" for val in cm[i])
+                f.write(row_str + "\n")
+
+            f.write("\n")
         
         # ========== 7. LOG METRICS ==========
         log_entry = pd.DataFrame([{
