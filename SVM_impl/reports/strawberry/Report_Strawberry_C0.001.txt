@@ -1,0 +1,22 @@
+TASK: Strawberry | C: 0.001
+
+Classification Report:
+============================================================
+              precision    recall  f1-score   support
+
+_Leaf_scorch       0.99      0.98      0.98       334
+    _healthy       0.94      0.97      0.96       135
+
+    accuracy                           0.97       469
+   macro avg       0.97      0.97      0.97       469
+weighted avg       0.97      0.97      0.97       469
+
+============================================================
+
+Confusion Matrix:
+(rows = actual class, columns = predicted class)
+
+            _Leaf_scorch _healthy
+_Leaf_scorch     326        8
+  _healthy       4      131
+

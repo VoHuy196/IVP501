@@ -1,0 +1,46 @@
+TASK: ROOT_PLANT_SPECIES | C: 0.01
+
+Classification Report:
+============================================================
+                         precision    recall  f1-score   support
+
+                  Apple       0.74      0.73      0.73       951
+              Blueberry       0.83      0.96      0.89       451
+Cherry_(including_sour)       0.75      0.83      0.79       572
+           Corn_(maize)       0.93      0.98      0.95      1156
+                  Grape       0.97      0.97      0.97      1219
+                 Orange       0.96      0.98      0.97      1652
+                  Peach       0.79      0.87      0.82       797
+           Pepper,_bell       0.80      0.82      0.81       743
+                 Potato       0.78      0.87      0.82       646
+              Raspberry       0.76      0.93      0.84       111
+                Soybean       0.94      0.95      0.95      1527
+                 Squash       0.88      0.95      0.92       550
+             Strawberry       0.78      0.87      0.82       469
+                 Tomato       0.95      0.86      0.90      5448
+
+               accuracy                           0.89     16292
+              macro avg       0.85      0.90      0.87     16292
+           weighted avg       0.90      0.89      0.89     16292
+
+============================================================
+
+Confusion Matrix:
+(rows = actual class, columns = predicted class)
+
+               Apple Blueberry Cherry_(including_sour) Corn_(maize)    Grape   Orange    Peach Pepper,_bell   Potato Raspberry  Soybean   Squash Strawberry   Tomato
+     Apple     690       25       52        8        4        3       15       26       16        2        9       12       18       71
+ Blueberry      11      432        0        0        0        0        1        1        1        0        0        0        1        4
+Cherry_(including_sour)      12        1      477        1        2        7       12       16        4        3        9        5        3       20
+Corn_(maize)       2        3        3     1133        2        0        2        2        1        0        1        3        1        3
+     Grape       2        0        1        1     1183        0        0        0        2        1        6        4        7       12
+    Orange       3        0        7        2        0     1619        2        8        2        0        0        1        1        7
+     Peach      18        4        6        4        2        6      691       10        2        2        1        5        1       45
+Pepper,_bell      17        6       22        5        1        6       10      612       11        2       32        0        4       15
+    Potato       7        0        8        0        0        3        5        9      565        0        7        7        8       27
+ Raspberry       0        0        2        0        0        0        1        0        2      103        1        0        1        1
+   Soybean      11        6        7        0        0        2        3       27        3        2     1457        0        2        7
+    Squash       3        0        5        7        1        0        2        0        2        0        0      523        4        3
+Strawberry       9        3        0       12        6        2        2        4       10        4        0        3      407        7
+    Tomato     147       40       50       47       24       36      134       50      107       16       27       30       62     4678
+

@@ -88,51 +88,56 @@ def final_vector(image):
     return np.concatenate([color_feat, texture_feat, shape_feat])
 
 # ========== LOAD DATASET ==========
-dataset_path = r"D:\project_ML\dataset\plantvillage dataset\color"
-X = []
-Y_plant = []        #   labels of species
-Y_diseased = []     #   labels of specific disease
+def main():
+    dataset_path = r"D:\project_ML\dataset\plantvillage dataset\color"
+    X = []
+    Y_plant = []        #   labels of species
+    Y_diseased = []     #   labels of specific disease
 
-all_folders = [f for f in os.listdir(dataset_path) if os.path.isdir(os.path.join(dataset_path, f))]
+    all_folders = [f for f in os.listdir(dataset_path) if os.path.isdir(os.path.join(dataset_path, f))]
 
-for folder_name in all_folders:
-    """
-    Separate the species name and disease name from the folder name
-    e.g "Apple__Black_rot" -> plant = "Apple", disease = "Black_rot"
-    """
-    if "__" in folder_name:
-        plant, disease = folder_name.split("__")
-    else:
-        plant = folder_name.split("__")[0]
-        disease = folder_name.split("__")[1]
+    for folder_name in all_folders:
+        """
+        Separate the species name and disease name from the folder name
+        e.g "Apple__Black_rot" -> plant = "Apple", disease = "Black_rot"
+        """
+        if "__" in folder_name:
+            plant, disease = folder_name.split("__")
+        else:
+            plant = folder_name.split("__")[0]
+            disease = folder_name.split("__")[1]
 
-    folder_path = os.path.join(dataset_path, folder_name)
-    image_files = os.listdir(folder_path)
-    print(f"Processing Folder: {folder_name} (Plant: {plant}, Disease: {disease})")
+        folder_path = os.path.join(dataset_path, folder_name)
+        image_files = os.listdir(folder_path)
+        print(f"Processing Folder: {folder_name} (Plant: {plant}, Disease: {disease})")
 
-    for img_name in tqdm(image_files):
-        img_path = os.path.join(folder_path, img_name)
-        image = cv2.imread(img_path)
+        for img_name in tqdm(image_files):
+            img_path = os.path.join(folder_path, img_name)
+            image = cv2.imread(img_path)
 
-        if image is None:
-            continue
+            if image is None:
+                continue
 
-        feature_vector = final_vector(image)
-        X.append(feature_vector)
-        Y_plant.append(plant)
-        Y_diseased.append(disease)
+            feature_vector = final_vector(image)
+            X.append(feature_vector)
+            Y_plant.append(plant)
+            Y_diseased.append(disease)
 
-X = np.array(X, dtype=np.float32)
-Y_plant = np.array(Y_plant)
-Y_diseased = np.array(Y_diseased)
+        X = np.array(X, dtype=np.float32)
+        Y_plant = np.array(Y_plant)
+        Y_diseased = np.array(Y_diseased)
 
-print("Final dataset shape:", X.shape)
-print("Final Y plant dataset shape:", Y_plant.shape)
-print("Final Y diseased dataset shape:", Y_diseased.shape)
+        print("Final dataset shape:", X.shape)
+        print("Final Y plant dataset shape:", Y_plant.shape)
+        print("Final Y diseased dataset shape:", Y_diseased.shape)
 
-# ========== SAVE ==========
-np.save(os.path.join(feature_dir, "X_features.npy"), X)
-np.save(os.path.join(feature_dir, "Y_plant.npy"), Y_plant)
-np.save(os.path.join(feature_dir, "Y_disease.npy"), Y_diseased)
+        # ========== SAVE ==========
+        np.save(os.path.join(feature_dir, "X_features.npy"), X)
+        np.save(os.path.join(feature_dir, "Y_plant.npy"), Y_plant)
+        np.save(os.path.join(feature_dir, "Y_disease.npy"), Y_diseased)
 
-print("\n[DONE] Saved!\n")
+        print("\n[DONE] Saved!\n")
+
+if __name__ == "__main__":
+    main()
+    

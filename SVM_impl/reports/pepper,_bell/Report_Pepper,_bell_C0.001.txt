@@ -1,0 +1,22 @@
+TASK: Pepper,_bell | C: 0.001
+
+Classification Report:
+============================================================
+                 precision    recall  f1-score   support
+
+_Bacterial_spot       0.90      0.93      0.92       293
+       _healthy       0.95      0.93      0.94       450
+
+       accuracy                           0.93       743
+      macro avg       0.93      0.93      0.93       743
+   weighted avg       0.93      0.93      0.93       743
+
+============================================================
+
+Confusion Matrix:
+(rows = actual class, columns = predicted class)
+
+            _Bacterial_spot _healthy
+_Bacterial_spot     273       20
+  _healthy      30      420
+

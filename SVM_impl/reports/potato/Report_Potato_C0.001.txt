@@ -1,0 +1,24 @@
+TASK: Potato | C: 0.001
+
+Classification Report:
+============================================================
+               precision    recall  f1-score   support
+
+_Early_blight       0.96      0.98      0.97       283
+ _Late_blight       0.94      0.94      0.94       311
+     _healthy       0.80      0.71      0.76        52
+
+     accuracy                           0.94       646
+    macro avg       0.90      0.88      0.89       646
+ weighted avg       0.94      0.94      0.94       646
+
+============================================================
+
+Confusion Matrix:
+(rows = actual class, columns = predicted class)
+
+            _Early_blight _Late_blight _healthy
+_Early_blight     278        5        0
+_Late_blight      11      291        9
+  _healthy       0       15       37
+

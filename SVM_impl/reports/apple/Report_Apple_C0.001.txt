@@ -1,0 +1,26 @@
+TASK: Apple | C: 0.001
+
+Classification Report:
+============================================================
+                   precision    recall  f1-score   support
+
+      _Apple_scab       0.90      0.88      0.89       186
+       _Black_rot       0.92      0.97      0.95       195
+_Cedar_apple_rust       0.99      0.97      0.98        78
+         _healthy       0.97      0.96      0.96       492
+
+         accuracy                           0.95       951
+        macro avg       0.94      0.95      0.94       951
+     weighted avg       0.95      0.95      0.95       951
+
+============================================================
+
+Confusion Matrix:
+(rows = actual class, columns = predicted class)
+
+            _Apple_scab _Black_rot _Cedar_apple_rust _healthy
+_Apple_scab     164       11        0       11
+_Black_rot       2      190        0        3
+_Cedar_apple_rust       2        0       76        0
+  _healthy      15        6        1      470
+

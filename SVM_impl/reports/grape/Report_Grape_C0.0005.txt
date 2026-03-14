@@ -1,0 +1,26 @@
+TASK: Grape | C: 0.0005
+
+Classification Report:
+============================================================
+                                     precision    recall  f1-score   support
+
+                         _Black_rot       0.90      0.83      0.86       365
+              _Esca_(Black_Measles)       0.87      0.91      0.89       408
+_Leaf_blight_(Isariopsis_Leaf_Spot)       0.99      0.99      0.99       316
+                           _healthy       0.96      0.98      0.97       130
+
+                           accuracy                           0.92      1219
+                          macro avg       0.93      0.93      0.93      1219
+                       weighted avg       0.92      0.92      0.92      1219
+
+============================================================
+
+Confusion Matrix:
+(rows = actual class, columns = predicted class)
+
+            _Black_rot _Esca_(Black_Measles) _Leaf_blight_(Isariopsis_Leaf_Spot) _healthy
+_Black_rot     304       55        1        5
+_Esca_(Black_Measles)      34      373        1        0
+_Leaf_blight_(Isariopsis_Leaf_Spot)       1        1      314        0
+  _healthy       0        1        1      128
+
