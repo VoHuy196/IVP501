@@ -142,9 +142,11 @@ class PlantDiseaseKNNApp:
         self.lbl_plant.config(text="Analyzing...")
         self.lbl_disease.config(text="-", fg="gray")
         self.root.update()
+        
+        ai_image = cv2.resize(self.cv_image, (256, 256))
 
         # Step 1: Extract Base Features
-        feat = extract_features(self.cv_image)
+        feat = extract_features(ai_image)
 
         # Step 2: Predict Plant Type
         feat_scaled_plant = self.scaler_plant.transform([feat])

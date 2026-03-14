@@ -9,9 +9,9 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 
 # ========== LOAD ==========
 print("Loading scaled dataset...")
-X         = np.load(os.path.join(DATA_DIR, "X_scaled.npy"))
-y_plant   = np.load(os.path.join(DATA_DIR, "y_plant.npy"))
-y_disease = np.load(os.path.join(DATA_DIR, "y_disease.npy"))
+X         = np.load(os.path.join(DATA_DIR, "X_scaled.npy"), allow_pickle=True)
+y_plant   = np.load(os.path.join(DATA_DIR, "y_plant.npy"), allow_pickle=True)
+y_disease = np.load(os.path.join(DATA_DIR, "y_disease.npy"), allow_pickle=True)
 
 with open(os.path.join(BASE_DIR, "label_map.json"), "r", encoding="utf-8") as f:
     label_map = json.load(f)

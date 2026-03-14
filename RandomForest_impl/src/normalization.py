@@ -9,9 +9,9 @@ MODELS_DIR = os.path.join(os.path.dirname(__file__), "..", "models")
 
 # ========== LOAD ==========
 print("Loading features...")
-X         = np.load(os.path.join(DATA_DIR, "X.npy"))
-y_plant   = np.load(os.path.join(DATA_DIR, "y_plant.npy"))
-y_disease = np.load(os.path.join(DATA_DIR, "y_disease.npy"))
+X         = np.load(os.path.join(DATA_DIR, "X.npy"), allow_pickle=True)
+y_plant   = np.load(os.path.join(DATA_DIR, "y_plant.npy"), allow_pickle=True)
+y_disease = np.load(os.path.join(DATA_DIR, "y_disease.npy"), allow_pickle=True)
 
 print("Original shape:", X.shape)
 print("Data type     :", X.dtype)

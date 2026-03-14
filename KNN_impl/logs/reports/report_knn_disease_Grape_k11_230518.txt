@@ -1,0 +1,21 @@
+EXPERIMENT REPORT - 2026-03-14 23:05:18
+Task: disease_Grape
+Model: KNeighborsClassifier (n_neighbors=11, weights='distance')
+========================================
+CLASSIFICATION REPORT:
+                                    precision    recall  f1-score   support
+
+                         Black_rot       0.90      0.62      0.73       354
+              Esca_(Black_Measles)       0.82      0.92      0.87       415
+Leaf_blight_(Isariopsis_Leaf_Spot)       0.82      0.99      0.90       323
+                           healthy       0.96      0.91      0.93       127
+
+                          accuracy                           0.85      1219
+                         macro avg       0.87      0.86      0.86      1219
+                      weighted avg       0.86      0.85      0.84      1219
+
+CONFUSION MATRIX:
+[[218  83  48   5]
+ [ 19 382  14   0]
+ [  2   1 320   0]
+ [  4   1   7 115]]
