@@ -1,0 +1,19 @@
+EXPERIMENT REPORT - 2026-03-12 14:35:05
+Task: disease_Potato
+Model: KNeighborsClassifier (n_neighbors=7, weights='distance')
+========================================
+CLASSIFICATION REPORT:
+              precision    recall  f1-score   support
+
+Early_blight       0.86      0.93      0.90       300
+ Late_blight       0.88      0.81      0.84       300
+     healthy       0.51      0.52      0.52        46
+
+    accuracy                           0.85       646
+   macro avg       0.75      0.75      0.75       646
+weighted avg       0.85      0.85      0.84       646
+
+CONFUSION MATRIX:
+[[280  16   4]
+ [ 39 242  19]
+ [  5  17  24]]

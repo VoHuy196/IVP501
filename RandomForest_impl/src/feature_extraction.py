@@ -94,24 +94,31 @@ dataset_path = r"D:\00.vanfolder\000.fsb\09.ComputerVision\demo\leafDisease\data
 
 X         = []
 y_plant   = []   # integer label → which plant
-y_disease = []   # integer label → which disease
+y_disease = []   # integer label → local disease index within its plant
 
 # Build label maps by scanning folders first
 print("Scanning dataset folders...")
-all_plants   = sorted({parse_folder(f)[0]
-                        for f in os.listdir(dataset_path)
-                        if os.path.isdir(os.path.join(dataset_path, f))
-                        and parse_folder(f)[0] is not None})
-all_diseases = sorted({parse_folder(f)[1]
-                        for f in os.listdir(dataset_path)
-                        if os.path.isdir(os.path.join(dataset_path, f))
-                        and parse_folder(f)[1] is not None})
 
-plant_to_idx   = {name: idx for idx, name in enumerate(all_plants)}
-disease_to_idx = {name: idx for idx, name in enumerate(all_diseases)}
+# Collect all (plant, disease) pairs
+all_pairs = []
+for f in os.listdir(dataset_path):
+    if os.path.isdir(os.path.join(dataset_path, f)):
+        plant, disease = parse_folder(f)
+        if plant is not None:
+            all_pairs.append((plant, disease))
 
-print(f"Plant   classes ({len(all_plants)})  : {all_plants}")
-print(f"Disease classes ({len(all_diseases)}) : {all_diseases}")
+all_plants = sorted({p for p, d in all_pairs})
+plant_to_idx = {name: idx for idx, name in enumerate(all_plants)}
+
+# Build per-plant disease maps  (disease_by_plant[plant] = {disease_name: local_idx})
+disease_by_plant = {}
+for plant in all_plants:
+    diseases_for_plant = sorted({d for p, d in all_pairs if p == plant})
+    disease_by_plant[plant] = {name: idx for idx, name in enumerate(diseases_for_plant)}
+
+print(f"Plant classes ({len(all_plants)}): {all_plants}")
+for plant, d_map in disease_by_plant.items():
+    print(f"  {plant}: {list(d_map.keys())}")
 
 # ========== EXTRACT FEATURES ==========
 for folder_name in sorted(os.listdir(dataset_path)):
@@ -125,7 +132,7 @@ for folder_name in sorted(os.listdir(dataset_path)):
         continue
 
     p_idx = plant_to_idx[plant]
-    d_idx = disease_to_idx[disease]
+    d_idx = disease_by_plant[plant][disease]   # local index within plant
 
     print(f"Processing '{folder_name}'  →  plant={plant}({p_idx}), disease={disease}({d_idx})")
 
@@ -155,10 +162,10 @@ np.save(os.path.join(DATA_DIR, "X.npy"),         X)
 np.save(os.path.join(DATA_DIR, "y_plant.npy"),   y_plant)
 np.save(os.path.join(DATA_DIR, "y_disease.npy"), y_disease)
 
-# Save human-readable label maps
+# Save hierarchical label map
 label_map = {
-    "plant"  : plant_to_idx,
-    "disease": disease_to_idx
+    "plant"          : plant_to_idx,
+    "disease_by_plant": disease_by_plant   # {plant_name: {disease_name: local_idx}}
 }
 BASE_DIR = os.path.join(os.path.dirname(__file__), "..")
 with open(os.path.join(BASE_DIR, "label_map.json"), "w", encoding="utf-8") as f:
@@ -166,6 +173,6 @@ with open(os.path.join(BASE_DIR, "label_map.json"), "w", encoding="utf-8") as f:
 
 print("\nSaved:")
 print("  data/X.npy")
-print("  data/y_plant.npy")
-print("  data/y_disease.npy")
-print("  label_map.json")
+print("  data/y_plant.npy  (global plant index)")
+print("  data/y_disease.npy (local disease index per plant)")
+print("  label_map.json  (hierarchical: disease_by_plant)")

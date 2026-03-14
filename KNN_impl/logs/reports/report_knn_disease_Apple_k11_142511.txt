@@ -1,0 +1,21 @@
+EXPERIMENT REPORT - 2026-03-12 14:25:11
+Task: disease_Apple
+Model: KNeighborsClassifier (n_neighbors=11, weights='distance')
+========================================
+CLASSIFICATION REPORT:
+                  precision    recall  f1-score   support
+
+      Apple_scab       0.92      0.46      0.61       189
+       Black_rot       0.89      0.89      0.89       186
+Cedar_apple_rust       0.97      0.46      0.62        83
+         healthy       0.75      0.96      0.84       494
+
+        accuracy                           0.80       952
+       macro avg       0.88      0.69      0.74       952
+    weighted avg       0.83      0.80      0.79       952
+
+CONFUSION MATRIX:
+[[ 87   5   1  96]
+ [  3 165   0  18]
+ [  0   0  38  45]
+ [  5  16   0 473]]
