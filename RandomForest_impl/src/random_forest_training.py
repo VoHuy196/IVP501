@@ -9,7 +9,7 @@ import pandas as pd
 
 # ========== PATHS ==========
 BASE_DIR   = os.path.join(os.path.dirname(__file__), "..")
-DATA_DIR   = os.path.join(BASE_DIR, "data")
+INPUT_DIR  = os.path.join(BASE_DIR, "input_vectors")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 LOGS_DIR   = os.path.join(BASE_DIR, "logs")
 GLOBAL_LOG_FILE = os.path.join(LOGS_DIR, "training_history_all.csv")
@@ -23,7 +23,7 @@ idx_to_plant     = {v: k for k, v in plant_to_idx.items()}
 
 # ========== HELPER ==========
 def run_random_forest(task_name, X_train, y_train, X_test, y_test,
-                      target_names, n_estimators_values, depth_values, log_file):
+                      target_names, n_estimators_values, depth_values, log_file, labels=None):
 
     best_model  = None
     best_f1     = -1
@@ -57,8 +57,14 @@ def run_random_forest(task_name, X_train, y_train, X_test, y_test,
 
             f1     = f1_score(y_test, y_pred, average="weighted")
             acc    = accuracy_score(y_test, y_pred)
-            report = classification_report(y_test, y_pred, target_names=target_names, zero_division=0)
-            cm     = confusion_matrix(y_test, y_pred)
+            report = classification_report(
+                y_test,
+                y_pred,
+                labels=labels,
+                target_names=target_names,
+                zero_division=0
+            )
+            cm     = confusion_matrix(y_test, y_pred, labels=labels)
 
             print(f"Accuracy : {acc:.4f}")
             print(f"F1 Score : {f1:.4f}")
@@ -139,10 +145,12 @@ def run_random_forest(task_name, X_train, y_train, X_test, y_test,
 # ========== LOAD DATA ==========
 print("Loading train/test datasets...")
 
-X_train_plant = np.load(os.path.join(DATA_DIR, "X_train_plant.npy"))
-X_test_plant  = np.load(os.path.join(DATA_DIR, "X_test_plant.npy"))
-y_train_plant = np.load(os.path.join(DATA_DIR, "y_train_plant.npy"))
-y_test_plant  = np.load(os.path.join(DATA_DIR, "y_test_plant.npy"))
+X_train_plant = np.load(os.path.join(INPUT_DIR, "X_train_pca.npy"))
+X_test_plant  = np.load(os.path.join(INPUT_DIR, "X_test_pca.npy"))
+y_train_plant = np.load(os.path.join(INPUT_DIR, "y_plant_train.npy"))
+y_test_plant  = np.load(os.path.join(INPUT_DIR, "y_plant_test.npy"))
+y_train_disease = np.load(os.path.join(INPUT_DIR, "y_disease_train.npy"))
+y_test_disease  = np.load(os.path.join(INPUT_DIR, "y_disease_test.npy"))
 
 print("Plant train shape:", X_train_plant.shape)
 
@@ -155,12 +163,14 @@ os.makedirs(MODELS_DIR, exist_ok=True)
 os.makedirs(LOGS_DIR,   exist_ok=True)
 
 # ========== TASK 1: Plant classification ==========
-plant_labels = [idx_to_plant[i] for i in range(len(idx_to_plant))]
+plant_label_indices = sorted(idx_to_plant.keys())
+plant_labels = [idx_to_plant[i] for i in plant_label_indices]
 
 best_plant_f1, best_plant_model, best_plant_params = run_random_forest(
     "plant", X_train_plant, y_train_plant,
     X_test_plant, y_test_plant,
-    plant_labels, n_estimators_values, depth_values, log_file
+    plant_labels, n_estimators_values, depth_values, log_file,
+    labels=plant_label_indices
 )
 
 p_label = f"n{best_plant_params['n_estimators']}_depth{best_plant_params['max_depth']}"
@@ -171,7 +181,6 @@ print(f"\nBest Plant F1 : {best_plant_f1:.4f}  -> models/rf_best_plant_{p_label}
 print(f"\n{'='*55}")
 print("Training per-plant disease classifiers ...")
 
-disease_data_dir    = os.path.join(DATA_DIR, "disease_per_plant")
 disease_models_dir  = os.path.join(MODELS_DIR, "disease_per_plant")
 os.makedirs(disease_models_dir, exist_ok=True)
 
@@ -180,24 +189,22 @@ best_disease_summary = {}
 for p_idx, plant_name in sorted(idx_to_plant.items()):
     safe_name = plant_name.replace(",", "").replace(" ", "_").replace("(", "").replace(")", "")
 
-    X_tr_path = os.path.join(disease_data_dir, f"X_train_{safe_name}.npy")
-    X_te_path = os.path.join(disease_data_dir, f"X_test_{safe_name}.npy")
-    y_tr_path = os.path.join(disease_data_dir, f"y_train_{safe_name}.npy")
-    y_te_path = os.path.join(disease_data_dir, f"y_test_{safe_name}.npy")
-
-    if not os.path.isfile(X_tr_path):
-        print(f"\n[SKIP] No split data found for plant: {plant_name}")
+    train_mask = (y_train_plant == p_idx)
+    test_mask = (y_test_plant == p_idx)
+    if not np.any(train_mask) or not np.any(test_mask):
+        print(f"\n[SKIP] No input_vectors samples for plant: {plant_name}")
         continue
 
-    X_tr = np.load(X_tr_path)
-    X_te = np.load(X_te_path)
-    y_tr = np.load(y_tr_path)
-    y_te = np.load(y_te_path)
+    X_tr = X_train_plant[train_mask]
+    X_te = X_test_plant[test_mask]
+    y_tr = y_train_disease[train_mask]
+    y_te = y_test_disease[test_mask]
 
     # Build target names for this plant's diseases (local indices → names)
     d_map        = disease_by_plant[plant_name]            # {disease_name: local_idx}
     idx_to_d     = {v: k for k, v in d_map.items()}
-    disease_lbls = [idx_to_d[i] for i in range(len(idx_to_d))]
+    disease_label_indices = sorted(idx_to_d.keys())
+    disease_lbls = [idx_to_d[i] for i in disease_label_indices]
 
     print(f"\n{'='*55}")
     print(f"Plant: {plant_name}  |  diseases: {disease_lbls}")
@@ -205,7 +212,8 @@ for p_idx, plant_name in sorted(idx_to_plant.items()):
     task_name = f"disease_{safe_name}"
     best_f1, best_model, best_params = run_random_forest(
         task_name, X_tr, y_tr, X_te, y_te,
-        disease_lbls, n_estimators_values, depth_values, log_file
+        disease_lbls, n_estimators_values, depth_values, log_file,
+        labels=disease_label_indices
     )
 
     d_label = f"n{best_params['n_estimators']}_depth{best_params['max_depth']}"

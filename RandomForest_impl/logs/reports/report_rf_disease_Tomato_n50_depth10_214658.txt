@@ -1,0 +1,55 @@
+EXPERIMENT REPORT - 2026-03-14 21:46:58
+Task  : disease_Tomato
+Model : RandomForestClassifier (n_estimators=50, max_depth=10, criterion=gini)
+========================================
+CLASSIFICATION REPORT:
+                                      precision    recall  f1-score   support
+
+                      Bacterial_spot       0.91      0.87      0.89       642
+                        Early_blight       0.70      0.75      0.72       289
+                         Late_blight       0.92      0.82      0.87       565
+                           Leaf_Mold       0.84      0.88      0.86       290
+                  Septoria_leaf_spot       0.90      0.90      0.90       496
+Spider_mites Two-spotted_spider_mite       0.82      0.87      0.84       499
+                         Target_Spot       0.83      0.90      0.87       432
+       Tomato_Yellow_Leaf_Curl_Virus       0.94      0.92      0.93      1658
+                 Tomato_mosaic_virus       0.84      0.92      0.88        98
+                             healthy       0.97      0.98      0.98       479
+
+                            accuracy                           0.89      5448
+                           macro avg       0.87      0.88      0.87      5448
+                        weighted avg       0.89      0.89      0.89      5448
+
+CONFUSION MATRIX:
+[[ 560    6    8    0    0    0    0   67    0    1]
+ [  13  217   12    0    6    7   22   12    0    0]
+ [   4   37  466   22   19    5    2    9    0    1]
+ [   0    7    4  256   14    2    3    3    0    1]
+ [   9    5    9   13  445    2    3    1    7    2]
+ [   3    6    0    2    2  433   33    8    7    5]
+ [   5    0    2    0    5   23  390    1    1    5]
+ [  21   33    7    9    2   55    9 1520    2    0]
+ [   0    0    0    3    1    1    0    3   90    0]
+ [   0    0    0    1    1    1    6    0    0  470]]
+
+FEATURE IMPORTANCES (Top 20):
+   1. f2       importance=0.016428
+   2. f5       importance=0.014131
+   3. f33      importance=0.013731
+   4. f1       importance=0.012916
+   5. f20      importance=0.012654
+   6. f4       importance=0.012603
+   7. f73      importance=0.012454
+   8. f32      importance=0.012361
+   9. f30      importance=0.012253
+  10. f3       importance=0.011802
+  11. f27      importance=0.011692
+  12. f28      importance=0.011253
+  13. f21      importance=0.011119
+  14. f90      importance=0.010829
+  15. f0       importance=0.010643
+  16. f23      importance=0.010586
+  17. f40      importance=0.010376
+  18. f19      importance=0.010265
+  19. f22      importance=0.010207
+  20. f64      importance=0.010121

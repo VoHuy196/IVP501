@@ -1,0 +1,39 @@
+EXPERIMENT REPORT - 2026-03-14 21:46:44
+Task  : disease_Strawberry
+Model : RandomForestClassifier (n_estimators=200, max_depth=10, criterion=gini)
+========================================
+CLASSIFICATION REPORT:
+              precision    recall  f1-score   support
+
+ Leaf_scorch       1.00      0.99      0.99       340
+     healthy       0.97      1.00      0.98       129
+
+    accuracy                           0.99       469
+   macro avg       0.98      0.99      0.99       469
+weighted avg       0.99      0.99      0.99       469
+
+CONFUSION MATRIX:
+[[336   4]
+ [  0 129]]
+
+FEATURE IMPORTANCES (Top 20):
+   1. f1       importance=0.063157
+   2. f2       importance=0.060331
+   3. f3       importance=0.052701
+   4. f5       importance=0.048778
+   5. f31      importance=0.048260
+   6. f4       importance=0.044687
+   7. f6       importance=0.038437
+   8. f0       importance=0.035896
+   9. f8       importance=0.027710
+  10. f11      importance=0.024482
+  11. f10      importance=0.017708
+  12. f9       importance=0.017311
+  13. f13      importance=0.011292
+  14. f30      importance=0.010711
+  15. f17      importance=0.009920
+  16. f77      importance=0.009016
+  17. f24      importance=0.008887
+  18. f28      importance=0.008863
+  19. f14      importance=0.008490
+  20. f78      importance=0.008334

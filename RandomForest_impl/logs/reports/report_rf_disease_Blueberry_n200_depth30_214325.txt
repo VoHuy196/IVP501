@@ -1,0 +1,37 @@
+EXPERIMENT REPORT - 2026-03-14 21:43:25
+Task  : disease_Blueberry
+Model : RandomForestClassifier (n_estimators=200, max_depth=30, criterion=gini)
+========================================
+CLASSIFICATION REPORT:
+              precision    recall  f1-score   support
+
+     healthy       1.00      1.00      1.00       451
+
+    accuracy                           1.00       451
+   macro avg       1.00      1.00      1.00       451
+weighted avg       1.00      1.00      1.00       451
+
+CONFUSION MATRIX:
+[[451]]
+
+FEATURE IMPORTANCES (Top 20):
+   1. f1863    importance=0.000000
+   2. f1862    importance=0.000000
+   3. f1861    importance=0.000000
+   4. f1860    importance=0.000000
+   5. f1859    importance=0.000000
+   6. f1858    importance=0.000000
+   7. f1857    importance=0.000000
+   8. f1856    importance=0.000000
+   9. f1855    importance=0.000000
+  10. f1854    importance=0.000000
+  11. f1853    importance=0.000000
+  12. f1852    importance=0.000000
+  13. f1851    importance=0.000000
+  14. f1850    importance=0.000000
+  15. f1849    importance=0.000000
+  16. f1848    importance=0.000000
+  17. f1847    importance=0.000000
+  18. f1846    importance=0.000000
+  19. f1845    importance=0.000000
+  20. f1844    importance=0.000000

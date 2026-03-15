@@ -1,0 +1,63 @@
+EXPERIMENT REPORT - 2026-03-14 21:42:54
+Task  : plant
+Model : RandomForestClassifier (n_estimators=300, max_depth=full, criterion=gini)
+========================================
+CLASSIFICATION REPORT:
+                         precision    recall  f1-score   support
+
+                  Apple       0.87      0.72      0.79       951
+              Blueberry       0.90      0.97      0.93       451
+Cherry_(including_sour)       0.90      0.88      0.89       572
+           Corn_(maize)       0.97      0.99      0.98      1156
+                  Grape       0.93      0.95      0.94      1219
+                 Orange       0.97      0.97      0.97      1652
+                  Peach       0.95      0.73      0.83       797
+           Pepper,_bell       0.87      0.82      0.84       743
+                 Potato       0.87      0.74      0.80       646
+              Raspberry       0.97      0.93      0.95       111
+                Soybean       0.90      0.96      0.93      1527
+                 Squash       0.96      0.96      0.96       550
+             Strawberry       0.94      0.88      0.91       469
+                 Tomato       0.90      0.95      0.92      5448
+
+               accuracy                           0.92     16292
+              macro avg       0.92      0.89      0.90     16292
+           weighted avg       0.92      0.92      0.91     16292
+
+CONFUSION MATRIX:
+[[ 689   32   20    5    8    4    1    5    5    0   12    8   10  152]
+ [   4  436    0    0    0    0    0    1    0    0    3    0    0    7]
+ [  13    0  503    0    3    2    5    8    0    0   13    1    0   24]
+ [   0    0    1 1144    2    0    0    0    1    0    1    0    3    4]
+ [   2    0    3    2 1155    0    0    0    0    1   31    2    0   23]
+ [   0    0    0    0    0 1609    0    5    1    0    0    0    0   37]
+ [  16    0    2    0   13   10  585   10    5    0    0    0    1  155]
+ [   7    0    8    0    3   12    2  607    8    1   61    0    0   34]
+ [   9    0    7    0    1    2    0   18  476    0    9    1    1  122]
+ [   0    0    2    0    2    0    0    0    0  103    0    0    0    4]
+ [   9    1    6    0    1    1    1   28    0    1 1465    0    0   14]
+ [   0    1    1    5    3    1    0    0    0    0    0  526    1   12]
+ [   0    4    0    5   21    0    3    0    4    0    0    3  411   18]
+ [  46   10    5   15   27   16   19   13   50    0   29    8   11 5199]]
+
+FEATURE IMPORTANCES (Top 20):
+   1. f1       importance=0.010066
+   2. f6       importance=0.009800
+   3. f2       importance=0.009685
+   4. f3       importance=0.009437
+   5. f0       importance=0.007814
+   6. f31      importance=0.007442
+   7. f95      importance=0.007410
+   8. f91      importance=0.007354
+   9. f40      importance=0.007313
+  10. f7       importance=0.007272
+  11. f92      importance=0.007039
+  12. f94      importance=0.006970
+  13. f5       importance=0.006926
+  14. f4       importance=0.006802
+  15. f89      importance=0.006567
+  16. f22      importance=0.006374
+  17. f64      importance=0.006355
+  18. f90      importance=0.006336
+  19. f32      importance=0.006148
+  20. f42      importance=0.006145

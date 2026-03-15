@@ -1,0 +1,43 @@
+EXPERIMENT REPORT - 2026-03-14 21:42:56
+Task  : disease_Apple
+Model : RandomForestClassifier (n_estimators=50, max_depth=10, criterion=gini)
+========================================
+CLASSIFICATION REPORT:
+                  precision    recall  f1-score   support
+
+      Apple_scab       0.93      0.85      0.89       186
+       Black_rot       0.97      0.98      0.98       195
+Cedar_apple_rust       0.90      1.00      0.95        78
+         healthy       0.96      0.97      0.97       492
+
+        accuracy                           0.95       951
+       macro avg       0.94      0.95      0.95       951
+    weighted avg       0.95      0.95      0.95       951
+
+CONFUSION MATRIX:
+[[159   3   8  16]
+ [  1 192   0   2]
+ [  0   0  78   0]
+ [ 11   2   1 478]]
+
+FEATURE IMPORTANCES (Top 20):
+   1. f64      importance=0.036152
+   2. f3       importance=0.025006
+   3. f63      importance=0.020565
+   4. f22      importance=0.020341
+   5. f5       importance=0.019359
+   6. f14      importance=0.018544
+   7. f4       importance=0.018162
+   8. f33      importance=0.017477
+   9. f13      importance=0.017351
+  10. f20      importance=0.016566
+  11. f11      importance=0.014704
+  12. f7       importance=0.014314
+  13. f1       importance=0.013963
+  14. f6       importance=0.013827
+  15. f9       importance=0.011634
+  16. f16      importance=0.011570
+  17. f19      importance=0.011228
+  18. f15      importance=0.010711
+  19. f2       importance=0.010595
+  20. f94      importance=0.010403
