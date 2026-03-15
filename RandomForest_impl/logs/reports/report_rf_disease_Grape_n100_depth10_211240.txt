@@ -1,0 +1,43 @@
+EXPERIMENT REPORT - 2026-03-14 21:12:40
+Task  : disease_Grape
+Model : RandomForestClassifier (n_estimators=100, max_depth=10, criterion=gini)
+========================================
+CLASSIFICATION REPORT:
+                                    precision    recall  f1-score   support
+
+                         Black_rot       0.79      0.54      0.64       365
+              Esca_(Black_Measles)       0.70      0.90      0.78       408
+Leaf_blight_(Isariopsis_Leaf_Spot)       0.94      0.95      0.94       322
+                           healthy       0.96      0.88      0.92       124
+
+                          accuracy                           0.80      1219
+                         macro avg       0.84      0.82      0.82      1219
+                      weighted avg       0.81      0.80      0.80      1219
+
+CONFUSION MATRIX:
+[[196 150  15   4]
+ [ 37 367   3   1]
+ [  6   9 307   0]
+ [ 10   2   3 109]]
+
+FEATURE IMPORTANCES (Top 20):
+   1. f3       importance=0.033939
+   2. f48      importance=0.029522
+   3. f60      importance=0.029347
+   4. f19      importance=0.024394
+   5. f37      importance=0.023166
+   6. f20      importance=0.022157
+   7. f59      importance=0.021052
+   8. f11      importance=0.020815
+   9. f7       importance=0.020139
+  10. f30      importance=0.019133
+  11. f36      importance=0.018267
+  12. f23      importance=0.014270
+  13. f69      importance=0.013998
+  14. f47      importance=0.011847
+  15. f130     importance=0.009748
+  16. f4       importance=0.009631
+  17. f118     importance=0.009502
+  18. f31      importance=0.009347
+  19. f2       importance=0.009088
+  20. f28      importance=0.009047

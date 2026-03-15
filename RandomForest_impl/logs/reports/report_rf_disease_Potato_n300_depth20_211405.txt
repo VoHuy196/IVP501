@@ -1,0 +1,41 @@
+EXPERIMENT REPORT - 2026-03-14 21:14:05
+Task  : disease_Potato
+Model : RandomForestClassifier (n_estimators=300, max_depth=20, criterion=gini)
+========================================
+CLASSIFICATION REPORT:
+              precision    recall  f1-score   support
+
+Early_blight       0.94      0.95      0.94       283
+ Late_blight       0.81      0.95      0.88       307
+     healthy       0.00      0.00      0.00        56
+
+    accuracy                           0.87       646
+   macro avg       0.58      0.63      0.61       646
+weighted avg       0.80      0.87      0.83       646
+
+CONFUSION MATRIX:
+[[268  15   0]
+ [ 15 292   0]
+ [  3  53   0]]
+
+FEATURE IMPORTANCES (Top 20):
+   1. f3       importance=0.022929
+   2. f194     importance=0.021259
+   3. f145     importance=0.015960
+   4. f50      importance=0.015955
+   5. f92      importance=0.013975
+   6. f120     importance=0.013879
+   7. f160     importance=0.013036
+   8. f340     importance=0.011049
+   9. f84      importance=0.010775
+  10. f26      importance=0.010082
+  11. f66      importance=0.009591
+  12. f425     importance=0.009266
+  13. f125     importance=0.009051
+  14. f37      importance=0.008740
+  15. f130     importance=0.007707
+  16. f23      importance=0.007396
+  17. f100     importance=0.007358
+  18. f398     importance=0.007352
+  19. f34      importance=0.007300
+  20. f22      importance=0.007097

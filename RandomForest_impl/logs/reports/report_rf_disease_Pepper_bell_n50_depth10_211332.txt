@@ -1,0 +1,39 @@
+EXPERIMENT REPORT - 2026-03-14 21:13:32
+Task  : disease_Pepper_bell
+Model : RandomForestClassifier (n_estimators=50, max_depth=10, criterion=gini)
+========================================
+CLASSIFICATION REPORT:
+                precision    recall  f1-score   support
+
+Bacterial_spot       0.82      0.70      0.76       293
+       healthy       0.82      0.90      0.86       450
+
+      accuracy                           0.82       743
+     macro avg       0.82      0.80      0.81       743
+  weighted avg       0.82      0.82      0.82       743
+
+CONFUSION MATRIX:
+[[206  87]
+ [ 45 405]]
+
+FEATURE IMPORTANCES (Top 20):
+   1. f7       importance=0.041728
+   2. f5       importance=0.036817
+   3. f48      importance=0.027178
+   4. f59      importance=0.021667
+   5. f14      importance=0.018583
+   6. f6       importance=0.016862
+   7. f60      importance=0.016496
+   8. f2       importance=0.014824
+   9. f17      importance=0.013535
+  10. f20      importance=0.012815
+  11. f51      importance=0.012717
+  12. f206     importance=0.009492
+  13. f58      importance=0.008269
+  14. f37      importance=0.007802
+  15. f3       importance=0.007478
+  16. f117     importance=0.006471
+  17. f192     importance=0.005878
+  18. f152     importance=0.005753
+  19. f0       importance=0.005274
+  20. f65      importance=0.005264
