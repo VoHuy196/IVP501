@@ -63,6 +63,7 @@ class PlantDiseaseKNNApp:
         self.cv_image = None
         self.model_plant = None
         self.scaler_plant = None
+        self.pca_plant = None
         self.plant_names = {}
         self.disease_map = {} # Store the nested dictionary for diseases
         self.is_model_ready = False
@@ -121,6 +122,12 @@ class PlantDiseaseKNNApp:
                 raise FileNotFoundError("scaler_plant.pkl not found in models directory.")
             self.scaler_plant = joblib.load(scaler_plant_path)
 
+            # 4. Load the Plant PCA
+            pca_plant_path = os.path.join(MODELS_DIR, "pca_plant.pkl")
+            if not os.path.exists(pca_plant_path):
+                raise FileNotFoundError("pca_plant.pkl not found in models directory.")
+            self.pca_plant = joblib.load(pca_plant_path)
+
             self.is_model_ready = True
             self.lbl_status.config(text="Plant model loaded. Ready.", fg="green")
             self.canvas_label.config(text="Models ready.\nSelect a leaf image to start.")
@@ -151,7 +158,8 @@ class PlantDiseaseKNNApp:
 
         # Step 2: Predict Plant Type
         feat_scaled_plant = self.scaler_plant.transform([feat])
-        plant_idx = self.model_plant.predict(feat_scaled_plant)[0]
+        feat_pca_plant = self.pca_plant.transform(feat_scaled_plant)
+        plant_idx = self.model_plant.predict(feat_pca_plant)[0]
         plant_name = self.plant_names.get(int(plant_idx), f"Unknown({plant_idx})")
         self.lbl_plant.config(text=f"🌱 {plant_name.replace('_', ' ')}")
 
@@ -162,15 +170,18 @@ class PlantDiseaseKNNApp:
         # Look for the specific disease model and scaler for this plant
         disease_model_files = [f for f in os.listdir(MODELS_DIR) if f.startswith(f"knn_best_disease_{plant_name}")]
         scaler_disease_path = os.path.join(MODELS_DIR, f"scaler_disease_{plant_name}.pkl")
+        pca_disease_path = os.path.join(MODELS_DIR, f"pca_disease_{plant_name}.pkl")
 
-        if disease_model_files and os.path.exists(scaler_disease_path):
+        if disease_model_files and os.path.exists(scaler_disease_path) and os.path.exists(pca_disease_path):
             try:
                 model_disease = joblib.load(os.path.join(MODELS_DIR, disease_model_files[0]))
                 scaler_disease = joblib.load(scaler_disease_path)
+                pca_disease = joblib.load(pca_disease_path)
 
-                # Scale features using the SPECIFIC scaler for this plant's disease model
+                # Scale and PCA features using the SPECIFIC scaler and PCA for this plant's disease model
                 feat_scaled_disease = scaler_disease.transform([original_features])
-                disease_idx = model_disease.predict(feat_scaled_disease)[0]
+                feat_pca_disease = pca_disease.transform(feat_scaled_disease)
+                disease_idx = model_disease.predict(feat_pca_disease)[0]
 
                 # Map index to disease name
                 disease_dict = {v: k for k, v in self.disease_map.get(plant_name, {}).items()}
