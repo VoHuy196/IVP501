@@ -2,60 +2,19 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
 import cv2
-import numpy as np
 import json
 import joblib
 import os
 import glob
-from skimage.feature import hog
-from skimage import color
-from skimage.transform import resize
+from RandomForest_impl.src.feature_extraction import extract_features
 
 # ========== PATHS ==========
 BASE_DIR        = os.path.join(os.path.dirname(__file__), "RandomForest_impl")
-PLANT_MODEL_PATH = os.path.join(BASE_DIR, "models", "rf_best_plant_n200_depthfull.pkl")
+PLANT_MODEL_PATH = os.path.join(BASE_DIR, "models", "rf_best_plant_n300_depth20.pkl")
 SCALER_PATH      = os.path.join(BASE_DIR, "models", "scaler.pkl")
 LABEL_MAP_PATH   = os.path.join(BASE_DIR, "label_map.json")
 DISEASE_MODELS_DIR = os.path.join(BASE_DIR, "models", "disease_per_plant")
 
-# ========== FEATURE EXTRACTION (same as feature_extraction.py) ==========
-def extract_color_histogram(image):
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    h_hist = cv2.normalize(cv2.calcHist([hsv], [0], None, [32], [0, 180]), None).flatten()
-    s_hist = cv2.normalize(cv2.calcHist([hsv], [1], None, [32], [0, 256]), None).flatten()
-    v_hist = cv2.normalize(cv2.calcHist([hsv], [2], None, [32], [0, 256]), None).flatten()
-    return np.concatenate([h_hist, s_hist, v_hist])
-
-def extract_hog(image):
-    image_resized = resize(image, (128, 128))
-    gray = color.rgb2gray(image_resized)
-    features = hog(gray, orientations=9, pixels_per_cell=(16, 16),
-                   cells_per_block=(2, 2), block_norm='L2-Hys')
-    return features
-
-def extract_shape(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)
-    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if len(contours) == 0:
-        return np.zeros(4)
-    c            = max(contours, key=cv2.contourArea)
-    area         = cv2.contourArea(c)
-    perimeter    = cv2.arcLength(c, True)
-    x, y, w, h   = cv2.boundingRect(c)
-    aspect_ratio = float(w) / h
-    hull         = cv2.convexHull(c)
-    hull_area    = cv2.contourArea(hull)
-    solidity     = float(area) / hull_area if hull_area != 0 else 0
-    return np.array([area, perimeter, aspect_ratio, solidity])
-
-def extract_features(image):
-    feat = np.concatenate([
-        extract_color_histogram(image),
-        extract_hog(image),
-        extract_shape(image)
-    ]).astype(np.float32)
-    return feat
 
 def plant_to_safe_name(plant_name):
     """Convert plant name to the safe filename suffix used when saving models."""
