@@ -1,5 +1,8 @@
 import sys
 import subprocess
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 STEPS = [
     "feature_extraction.py",
@@ -9,7 +12,7 @@ STEPS = [
 
 def run_step(script):
     print(f"\n===== Running {script} =====")
-    result = subprocess.run([sys.executable, script])
+    result = subprocess.run([sys.executable, script], cwd=BASE_DIR)
 
     if result.returncode != 0:
         print(f"Error while running {script}. Pipeline stopped!")
